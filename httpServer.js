@@ -11,5 +11,5 @@ http.createServer(function(request, response) {
     response.write("</body>");
     response.write("</html>");
     response.end();
-}).listen(80); // process.env.PORT, process.env.IP
-console.log("Server is listening on " + 80); // process.env.IP + ":" + process.env.PORT
+}).listen(process.env.PORT || 80); // process.env.PORT, process.env.IP
+console.log("Server is listening on " + process.env.PORT || 80); // process.env.IP + ":" + process.env.PORTh
