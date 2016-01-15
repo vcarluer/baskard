@@ -1,1 +1,1 @@
-web: node httpServer.js
+web: node index.js
