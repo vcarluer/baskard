@@ -1,15 +1,17 @@
 var http = require("http");
+var fs = require("fs");
 http.createServer(function(request, response) {
     response.writeHead("200", { "content-type": "text/html"});
-    response.write("<!DOCTYPE html>");
-    response.write("<html>");
-    response.write("<head>");
-    response.write("<title>Hello World Page</title>");
-    response.write("</head>");
-    response.write("<body>");
-    response.write("Hello World!");
-    response.write("</body>");
-    response.write("</html>");
-    response.end();
-}).listen(process.env.PORT || 80); // process.env.PORT, process.env.IP
-console.log("Server is listening on " + process.env.PORT || 80); // process.env.IP + ":" + process.env.PORTh
+    var fsPath = "polact.htm";
+    response.writeHead(200);
+    var readStream = fs.createReadStream(fsPath);
+    readStream.on('open', function () {
+    readStream.pipe(response);
+    });
+    
+    // This catches any errors that happen while creating the readable stream (usually invalid names)
+    readStream.on('error', function(err) {
+        response.end(err);
+    });
+}).listen(process.env.PORT || 80);
+console.log("Server is listening on " + process.env.PORT || 80);
