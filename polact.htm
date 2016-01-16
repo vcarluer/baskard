@@ -2,18 +2,23 @@
 <html>
 <head>
     <title>Polact</title>
+    <script type="text/javascript" src="reqwest.min.js"></script>
+    <script type="text/javascript" src="polact.js"></script>
+    <script type="text/javascript" src="Controllers/poll.js"></script>
 </head>
 <body>
-    Sondage pour le prochain jeu !
-    <div class="question">
-        Vous voulez faire quoi ?
-    </div>
-    <div class="responseList">
-        <div class="response">
-            <div>Continuer "Into the Odd"</div><div>+</div><div>-</div>
+    <div class="poll">
+        <div class="pollTitle"></div>
+        <div class="question">
+            Vous voulez faire quoi ?
         </div>
-        <div class="response">
-            <div>Un autre jeu</div><div>+</div><div>-</div>
+        <div class="responseList">
+            <div class="response">
+                <div>Continuer "Into the Odd"</div><div>+</div><div>-</div>
+            </div>
+            <div class="response">
+                <div>Un autre jeu</div><div>+</div><div>-</div>
+            </div>
         </div>
     </div>
 </body>

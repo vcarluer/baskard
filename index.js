@@ -5,10 +5,10 @@ var api = require("./api.js");
 
 http.createServer(function(request, response) {
     var requestUrl = url.parse(request.url);
-    if (requestUrl.pathname === "/") {
-        staticRoot.write(response);
+    if (requestUrl.pathname.substr(0, api.root.length) === api.root) {
+         api.route(request, response);
     } else {
-        api.route(request, response);
+        staticRoot.write(requestUrl.pathname, response);
     }
    
 }).listen(process.env.PORT || 80);
