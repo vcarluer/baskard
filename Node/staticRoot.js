@@ -14,7 +14,7 @@ staticRoot.write = function (pathname, response) {
     var resource = pathname.slice(1);
     if (!resource) {
         response.writeHead("200", { "content-type": "text/html"});
-        var fsPath = "polact.htm";
+        var fsPath = "Views/polact.htm";
         var readStream = fs.createReadStream(fsPath);
         readStream.on('open', function () {
             readStream.pipe(response);
@@ -30,16 +30,21 @@ staticRoot.write = function (pathname, response) {
                 if (extPos) {
                     var ext = resource.substr(extPos + 1);
                     if (ext && authorizedContentTypes[ext]) {
-                        // todo: secure node js files
-                        response.writeHead("200", { "content-type": authorizedContentTypes[ext]});
-                        var readStream = fs.createReadStream(resource);
-                        readStream.on('open', function () {
-                            readStream.pipe(response);
-                        });
-                        
-                        readStream.on('error', function(err) {
-                            response.end(err);
-                        });
+                        if (resource === "index.js" || resource.substr(resource, "Node".length) === "Node") {
+                            response.writeHead("403");
+                            response.end();
+                        } else {
+                            // Serve file
+                            response.writeHead("200", { "content-type": authorizedContentTypes[ext]});
+                            var readStream = fs.createReadStream(resource);
+                            readStream.on('open', function () {
+                                readStream.pipe(response);
+                            });
+                            
+                            readStream.on('error', function(err) {
+                                response.end(err);
+                            });
+                        }
                     } else {
                         response.writeHead("403");
                         response.end();

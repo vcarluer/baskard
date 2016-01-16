@@ -1,7 +1,7 @@
 var http = require("http");
 var url = require("url");
-var staticRoot = require("./staticRoot.js");
-var api = require("./api.js");
+var staticRoot = require("./Node/staticRoot.js");
+var api = require("./Node/api.js");
 
 http.createServer(function(request, response) {
     var requestUrl = url.parse(request.url);
