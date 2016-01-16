@@ -1,4 +1,3 @@
-"use strict";
 var controllers = {};
 controllers.poll = require("./APIControllers/poll.js");
 var url = require("url");
@@ -12,7 +11,13 @@ api.route = function(request, response) {
     if (controller) {
         var method = request.method.toLocaleLowerCase();
          if (controller[method]) {
-            controller[method](response);
+            var body = "";
+            request.on('data', function (chunk) {
+                body += chunk;
+            });
+            request.on('end', function () {
+               controller[method](response, body);
+            });
         }
     }
 };

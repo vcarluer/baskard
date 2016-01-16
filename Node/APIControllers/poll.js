@@ -1,4 +1,3 @@
-"use strict";
 var firstPoll = {
     title: "Sondage pour le prochain jeu !"
 };
@@ -9,4 +8,11 @@ poll.get = function(response) {
     response.write(JSON.stringify(firstPoll));
     response.end();
 };
+
+poll.post = function(response, body) {
+    console.log("received: " + body);
+    response.writeHead("200", { "content-type": "application/json"});
+    response.end();
+};
+
 module.exports = poll;

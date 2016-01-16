@@ -3,5 +3,5 @@
   "version": "1.0.0",
   "description": "Poll for the next activity",
   "author": "Vincent Carluer <vcarluer@gmail.com>",
-  "main": "httpServer.js"
+  "main": "index.js"
 }
