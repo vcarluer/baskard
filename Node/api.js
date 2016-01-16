@@ -15,9 +15,6 @@ api.route = function(request, response) {
             controller[method](response);
         }
     }
-    if (requestUrl.pathname === "/poll") {
-       
-    }
 };
 
 module.exports = api;
