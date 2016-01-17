@@ -10,6 +10,10 @@ poll.bind = function() {
             self.ask(question);
         }
     };
+    
+    document.getElementById("delete").onclick = function() {
+        self.delete(2);
+    };
 };
 
 poll.render = function(pollData) {
@@ -23,7 +27,22 @@ poll.ask = function(question) {
        method: "POST",
        data: JSON.stringify(data),
        success: function (resp) {
-           console.log("question asked!");
+           console.log("question asked! " + resp);
+       },
+       error: function(resp) {
+           console.log(resp);
+       }
+   });
+};
+
+poll.delete = function(id) {
+    var data = { id: id };
+    reqwest({
+       url: "/api/poll",
+       method: "DELETE",
+       data: JSON.stringify(data),
+       success: function (resp) {
+           console.log(id + " deleted");
        },
        error: function(resp) {
            console.log(resp);
