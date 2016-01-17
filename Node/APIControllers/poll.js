@@ -10,7 +10,7 @@ poll.get = function(response) {
             return console.error('error fetching client from pool', err);
         }
     
-        client.query('SELECT question, yes, no FROM poll;', function(err, result) {
+        client.query('SELECT question, yes, no FROM poll LIMIT 100;', function(err, result) {
             //call `done()` to release the client back to the pool 
             done();
             
