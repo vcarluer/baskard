@@ -33,7 +33,7 @@ api.route = function(request, response) {
                     controller[method](response, bodyObject, request);
                 } else {
                     if (request.headers.authentication && request.headers.authentication != "undefined") {
-                        controllers.account.getIdBySecret(request.headers.authentication, function(id) {
+                        controllers.account.getIdBySecret(request, request.headers.authentication, function(id) {
                             bodyObject.userId = id;    
                             if (!bodyObject.userId) {
                                response.writeHead("401", { "content-type": "application/json"});

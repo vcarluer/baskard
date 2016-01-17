@@ -182,12 +182,17 @@ poll.delVote = function(data) {
 
 function getUserId () {
     var id;
-    if (localStorage.user) {
-        var user = JSON.parse(localStorage.user);
-        if (user) {
-            id = user.secret;
+    try {
+        if (localStorage.user) {
+            var user = JSON.parse(localStorage.user);
+            if (user) {
+                id = user.secret;
+            }
         }
+        
+        return id;
     }
-    
-    return id;
+    catch(err) {
+        console.log(err);
+    }
 }
