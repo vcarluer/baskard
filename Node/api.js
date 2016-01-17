@@ -20,11 +20,15 @@ api.route = function(request, response) {
                 var bodyObject;
                 if (body) {
                     bodyObject = JSON.parse(body);
+                } else {
+                    bodyObject = {};
                 }
                 
-                if (requestUrl.query) {
-                    // need to parse query string
-                    bodyObject = { userId: 0 };
+                if (request.headers.authentication) {
+                    bodyObject.userId = request.headers.authentication;
+                } else {
+                    response.writeHead("401", { "content-type": "application/json"});
+                    return response.end();
                 }
                 
                 controller[method](response, bodyObject);

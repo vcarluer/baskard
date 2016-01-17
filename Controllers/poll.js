@@ -13,10 +13,11 @@ poll.bind = function() {
 };
 
 poll.refresh = function() {
-    var data = "userId=0";
     reqwest({
        url: "/api/poll",
-       data: JSON.stringify(data),
+       headers: {
+           'authentication': getUserId()
+       },
        method: "GET",
        success: function (resp) {
            poll.render(resp);
@@ -54,17 +55,19 @@ poll.render = function(polls) {
         plusLink.setAttribute("href", "#");
         plus.appendChild(plusLink);
         var plusText = "";
-        if (poll.yes) {
+            if (poll.useryes) {
             plusText += "(yes)";
             plusLink.onclick = function () {
-                self.delVote({ pollId: poll.id, userId: 0});  
+                self.delVote({ pollId: poll.id });  
             };
         } else {
             plusText += "yes";
             plusLink.onclick = function () {
-                self.vote({ pollId: poll.id, userId: 0, yes: true});  
+                self.vote({ pollId: poll.id, yes: true});  
             };
         }
+        
+        plusText += " " + poll.yes;
         plusLink.innerHTML = plusText;
         
         var moins = document.createElement("div");
@@ -74,17 +77,18 @@ poll.render = function(polls) {
         moinsLink.setAttribute("href", "#");
         moins.appendChild(moinsLink);
         var moinsText = "";
-        if (poll.no) {
+        if (poll.userno) {
             moinsText += "(no)";
             moinsLink.onclick = function () {
-                self.delVote({ pollId: poll.id, userId: 0});  
+                self.delVote({ pollId: poll.id});  
             };
         } else {
             moinsText += "no";
             moinsLink.onclick = function () {
-                self.vote({ pollId: poll.id, userId: 0, no: true});  
+                self.vote({ pollId: poll.id, no: true});  
             };
         }
+        moinsText += " " + poll.no;
         moinsLink.innerHTML = moinsText;
         
         pollListDom.appendChild(pollDom);
@@ -102,6 +106,9 @@ poll.ask = function(question) {
        url: "/api/poll",
        method: "POST",
        data: JSON.stringify(data),
+       headers: {
+           'authentication': getUserId()
+       },
        success: function (resp) {
            console.log("question asked! " + resp);
            self.refresh();
@@ -119,6 +126,9 @@ poll.delete = function(id) {
        url: "/api/poll",
        method: "DELETE",
        data: JSON.stringify(data),
+       headers: {
+           'authentication': getUserId()
+       },
        success: function (resp) {
            console.log(id + " deleted");
            self.refresh();
@@ -135,6 +145,9 @@ poll.vote = function(data) {
        url: "/api/vote",
        method: "POST",
        data: JSON.stringify(data),
+       headers: {
+           'authentication': getUserId()
+       },
        success: function (resp) {
            console.log("vote done " + resp);
            self.refresh();
@@ -152,6 +165,9 @@ poll.delVote = function(data) {
        url: "/api/vote",
        method: "DELETE",
        data: JSON.stringify(data),
+       headers: {
+           'authentication': getUserId()
+       },
        success: function (resp) {
            console.log("vote removed " + resp);
            self.refresh();
@@ -161,3 +177,7 @@ poll.delVote = function(data) {
        }
    });
 };
+
+function getUserId () {
+    return user.id;
+}

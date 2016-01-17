@@ -10,7 +10,7 @@ poll.get = function(response, body) {
             return console.error('error fetching client from pool', err);
         }
     
-        var query = 'SELECT poll.id, poll.question, poll.yes, poll.no, vote.yes as userYes, vote.no as userNo FROM poll '+
+        var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll '+
                     'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId + ' LIMIT 100;';
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
@@ -39,7 +39,7 @@ poll.post = function(response, body) {
                 return console.error('error fetching client from pool', err);
             }
             
-            if (!body.question) {
+            if (!body.question || typeof body.userId == 'undefined') {
                 response.writeHead("400", { "content-type": "application/json"});
                 var json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
                 response.write(json);
@@ -47,7 +47,7 @@ poll.post = function(response, body) {
             }
             
             if (body.question.length <= 140) {
-                var query = "INSERT into poll (question, yes, no, ownerid) values ('" + body.question.replace(/'/g, "''") + "', 0, 0, 0);";
+                var query = "INSERT into poll (question, yes, no, ownerid) values ('" + body.question.replace(/'/g, "''") + "', 0, 0, " + body.userId + ");";
                 console.log("running query: " + query);
                 client.query(query, function(err, result) {
                     //call `done()` to release the client back to the pool 
@@ -89,8 +89,8 @@ poll.delete = function(response, body) {
                 return console.error('error fetching client from pool', err);
             }
             
-            if (typeof body.id != 'undefined') {
-                var query = "DELETE from poll where id = " + body.id + ";";
+            if (typeof body.id != 'undefined' && typeof body.userId != 'undefined') {
+                var query = "select 1 from poll where id = " + body.id + " and ownerId = " + body.userId + ";";
                 console.log("running query: " + query);
                 client.query(query, function(err, result) {
                     //call `done()` to release the client back to the pool 
@@ -100,7 +100,12 @@ poll.delete = function(response, body) {
                       return console.error('error running query', err);
                     }
                     
-                    var query = "DELETE from vote where pollId = " + body.id + ";";
+                    if (result.rowCount === 0) {
+                        response.writeHead("403", { "content-type": "application/json"});
+                        return response.end();
+                    }
+                    
+                    var query = "DELETE from poll where id = " + body.id + ";";
                     console.log("running query: " + query);
                     client.query(query, function(err, result) {
                         //call `done()` to release the client back to the pool 
@@ -110,8 +115,19 @@ poll.delete = function(response, body) {
                           return console.error('error running query', err);
                         }
                         
-                        response.writeHead("200", { "content-type": "application/json"});
-                        response.end();
+                        var query = "DELETE from vote where pollId = " + body.id + ";";
+                        console.log("running query: " + query);
+                        client.query(query, function(err, result) {
+                            //call `done()` to release the client back to the pool 
+                            done();
+                            
+                            if(err) {
+                              return console.error('error running query', err);
+                            }
+                            
+                            response.writeHead("200", { "content-type": "application/json"});
+                            response.end();
+                        });
                     });
                 });
             } else {

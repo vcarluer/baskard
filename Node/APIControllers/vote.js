@@ -117,7 +117,10 @@ function updatePollCounters(response, body, client, done) {
           return console.error('error running query', err);
         }
         
-        client.query('SELECT id, question, yes, no FROM poll where id = ' + body.pollId + ';', function(err, result) {
+        var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll ' +
+                    'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId + ' ' +
+                    'where poll.id = ' + body.pollId;
+        client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();
             
