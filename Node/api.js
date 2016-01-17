@@ -16,7 +16,12 @@ api.route = function(request, response) {
                 body += chunk;
             });
             request.on('end', function () {
-               controller[method](response, body);
+                var bodyObject;
+                if (body) {
+                    bodyObject = JSON.parse(body);
+                }
+                
+                controller[method](response, bodyObject);
             });
         }
     }

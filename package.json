@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "description": "Poll for the next activity",
   "author": "Vincent Carluer <vcarluer@gmail.com>",
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+    "pg": "4.4.3"
+  }
 }

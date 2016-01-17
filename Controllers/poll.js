@@ -13,11 +13,11 @@ poll.bind = function() {
 };
 
 poll.render = function(pollData) {
-    document.querySelector(".pollTitle").innerHTML = pollData.title;
+    document.querySelector(".pollTitle").innerHTML = pollData.question;
 };
 
 poll.ask = function(question) {
-    var data = { ask: question };
+    var data = { question: question };
     reqwest({
        url: "/api/poll",
        method: "POST",

@@ -1,0 +1,1 @@
+create table poll (id serial, question varchar(140), yes integer, no integer, ownerId integer, PRIMARY KEY(id));

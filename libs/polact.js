@@ -15,7 +15,8 @@ ready(function() {
        url: "/api/poll",
        method: "GET",
        success: function (resp) {
-           poll.render(resp);
+           var fist = resp[0];
+           poll.render(fist);
        },
        error: function(resp) {
            console.log(resp);
