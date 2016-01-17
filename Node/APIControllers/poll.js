@@ -2,7 +2,7 @@ var pg = require('pg');
 
 var connectionString = "postgres://fvtjauwobkigbf:8reHZ_30Uj-6js4s1nY66ktN0l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/d6t3vp05h61n8r?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 var poll = function() {};
-poll.get = function(response) {
+poll.get = function(response, body) {
     var polls = [];
     
     pg.connect(connectionString, function(err, client, done) {
@@ -10,7 +10,9 @@ poll.get = function(response) {
             return console.error('error fetching client from pool', err);
         }
     
-        client.query('SELECT id, question, yes, no FROM poll LIMIT 100;', function(err, result) {
+        var query = 'SELECT poll.id, poll.question, poll.yes, poll.no, vote.yes as userYes, vote.no as userNo FROM poll '+
+                    'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId + ' LIMIT 100;';
+        client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();
             
@@ -35,6 +37,13 @@ poll.post = function(response, body) {
         pg.connect(connectionString, function(err, client, done) {
             if(err) {
                 return console.error('error fetching client from pool', err);
+            }
+            
+            if (!body.question) {
+                response.writeHead("400", { "content-type": "application/json"});
+                var json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
+                response.write(json);
+                return response.end();
             }
             
             if (body.question.length <= 140) {
@@ -65,6 +74,11 @@ poll.post = function(response, body) {
                 response.end();
             }
         });
+    } else {
+        response.writeHead("400", { "content-type": "application/json"});
+        var json = JSON.stringify({ errorCode: 4, error: "Missing body" });
+        response.write(json);
+        response.end();
     }
 };
 
@@ -86,8 +100,19 @@ poll.delete = function(response, body) {
                       return console.error('error running query', err);
                     }
                     
-                    response.writeHead("200", { "content-type": "application/json"});
-                    response.end();
+                    var query = "DELETE from vote where pollId = " + body.id + ";";
+                    console.log("running query: " + query);
+                    client.query(query, function(err, result) {
+                        //call `done()` to release the client back to the pool 
+                        done();
+                        
+                        if(err) {
+                          return console.error('error running query', err);
+                        }
+                        
+                        response.writeHead("200", { "content-type": "application/json"});
+                        response.end();
+                    });
                 });
             } else {
                 response.writeHead("400", { "content-type": "application/json"});
@@ -96,6 +121,11 @@ poll.delete = function(response, body) {
                 response.end();
             }
         });
+    } else {
+        response.writeHead("400", { "content-type": "application/json"});
+        var json = JSON.stringify({ errorCode: 4, error: "Missing body" });
+        response.write(json);
+        response.end();
     }
 };
 

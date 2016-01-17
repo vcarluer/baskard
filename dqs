@@ -1,0 +1,10 @@
+     Table "public.vote"
+ Column |  Type   | Modifiers 
+--------+---------+-----------
+ pollid | integer | not null
+ userid | integer | not null
+ yes    | boolean | 
+ no     | boolean | 
+Indexes:
+    "vote_pkey" PRIMARY KEY, btree (pollid, userid)
+

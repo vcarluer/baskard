@@ -13,8 +13,10 @@ poll.bind = function() {
 };
 
 poll.refresh = function() {
+    var data = "userId=0";
     reqwest({
        url: "/api/poll",
+       data: JSON.stringify(data),
        method: "GET",
        success: function (resp) {
            poll.render(resp);
@@ -48,14 +50,49 @@ poll.render = function(polls) {
         var plus = document.createElement("div");
         plus.className = "choice";
         pollDom.appendChild(plus);
-        plus.innerHTML = "<a href='#'>+ " + poll.yes + "</a>";
+        var plusLink = document.createElement("a");
+        plusLink.setAttribute("href", "#");
+        plus.appendChild(plusLink);
+        var plusText = "";
+        if (poll.yes) {
+            plusText += "(yes)";
+            plusLink.onclick = function () {
+                self.delVote({ pollId: poll.id, userId: 0});  
+            };
+        } else {
+            plusText += "yes";
+            plusLink.onclick = function () {
+                self.vote({ pollId: poll.id, userId: 0, yes: true});  
+            };
+        }
+        plusLink.innerHTML = plusText;
+        
         var moins = document.createElement("div");
         moins.className = "choice";
         pollDom.appendChild(moins);
-        moins.innerHTML = "<a href='#'>- " + poll.no + "</a>";
+        var moinsLink = document.createElement("a");
+        moinsLink.setAttribute("href", "#");
+        moins.appendChild(moinsLink);
+        var moinsText = "";
+        if (poll.no) {
+            moinsText += "(no)";
+            moinsLink.onclick = function () {
+                self.delVote({ pollId: poll.id, userId: 0});  
+            };
+        } else {
+            moinsText += "no";
+            moinsLink.onclick = function () {
+                self.vote({ pollId: poll.id, userId: 0, no: true});  
+            };
+        }
+        moinsLink.innerHTML = moinsText;
         
         pollListDom.appendChild(pollDom);
     });
+};
+
+poll.onVoteClick = function() {
+      
 };
 
 poll.ask = function(question) {
@@ -84,6 +121,39 @@ poll.delete = function(id) {
        data: JSON.stringify(data),
        success: function (resp) {
            console.log(id + " deleted");
+           self.refresh();
+       },
+       error: function(resp) {
+           console.log(resp);
+       }
+   });
+};
+
+poll.vote = function(data) {
+    var self = this;
+    reqwest({
+       url: "/api/vote",
+       method: "POST",
+       data: JSON.stringify(data),
+       success: function (resp) {
+           console.log("vote done " + resp);
+           self.refresh();
+       },
+       error: function(resp) {
+           console.log(resp);
+       }
+   });
+};
+
+// Need pollId and userId
+poll.delVote = function(data) {
+    var self = this;
+    reqwest({
+       url: "/api/vote",
+       method: "DELETE",
+       data: JSON.stringify(data),
+       success: function (resp) {
+           console.log("vote removed " + resp);
            self.refresh();
        },
        error: function(resp) {

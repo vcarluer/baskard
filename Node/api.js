@@ -1,5 +1,6 @@
 var controllers = {};
 controllers.poll = require("./APIControllers/poll.js");
+controllers.vote = require("./APIControllers/vote.js");
 var url = require("url");
 
 var api = function() {};
@@ -19,6 +20,11 @@ api.route = function(request, response) {
                 var bodyObject;
                 if (body) {
                     bodyObject = JSON.parse(body);
+                }
+                
+                if (requestUrl.query) {
+                    // need to parse query string
+                    bodyObject = { userId: 0 };
                 }
                 
                 controller[method](response, bodyObject);
