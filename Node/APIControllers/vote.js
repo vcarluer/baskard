@@ -3,6 +3,7 @@ var pg = require('pg');
 var connectionString = "postgres://fvtjauwobkigbf:8reHZ_30Uj-6js4s1nY66ktN0l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/d6t3vp05h61n8r?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 var vote = function() {};
 vote.post = function(response, body) {
+    var json
     console.log("received: " + body);
     if (body) {
         pg.connect(connectionString, function(err, client, done) {
@@ -14,14 +15,14 @@ vote.post = function(response, body) {
                     typeof body.userId == 'undefined' || 
                     (typeof body.yes == 'undefined' && typeof body.no == 'undefined')){
                 response.writeHead("400", { "content-type": "application/json"});
-                var json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
+                json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
                 response.write(json);
                 return response.end();
             }
             
             if (body.yes && body.no) {
                 response.writeHead("400", { "content-type": "application/json"});
-                var json = JSON.stringify({ errorCode: 6, error: "You cannot vote yes and no at the same time!" });
+                json = JSON.stringify({ errorCode: 6, error: "You cannot vote yes and no at the same time!" });
                 response.write(json);
                 return response.end();
             }
@@ -63,7 +64,7 @@ vote.post = function(response, body) {
         });
     } else {
         response.writeHead("400", { "content-type": "application/json"});
-        var json = JSON.stringify({ errorCode: 4, error: "Missing body" });
+        json = JSON.stringify({ errorCode: 4, error: "Missing body" });
         response.write(json);
         return response.end();
     }

@@ -32,6 +32,7 @@ poll.get = function(response, body) {
 };
 
 poll.post = function(response, body) {
+    var json;
     console.log("received: " + body);
     if (body) {
         pg.connect(connectionString, function(err, client, done) {
@@ -41,7 +42,7 @@ poll.post = function(response, body) {
             
             if (!body.question || typeof body.userId == 'undefined') {
                 response.writeHead("400", { "content-type": "application/json"});
-                var json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
+                json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
                 response.write(json);
                 return response.end();
             }
@@ -58,31 +59,35 @@ poll.post = function(response, body) {
                     }
                     
                     response.writeHead("200", { "content-type": "application/json"});
-                    var newPoll = {
+                    // return new poll with id (select)
+                    /*var newPoll = {
                         question: body.question,
                         yes: 0,
                         no: 0
                     };
                     
-                    response.write(JSON.stringify(newPoll));
+                    response.write(JSON.stringify(newPoll));*/
+                    
+                    
                     response.end();
                 });
             } else {
                 response.writeHead("400", { "content-type": "application/json"});
-                var json = JSON.stringify({ errorCode: 1, error: "Question too long, max 140 characters." });
+                json = JSON.stringify({ errorCode: 1, error: "Question too long, max 140 characters." });
                 response.write(json);
                 response.end();
             }
         });
     } else {
         response.writeHead("400", { "content-type": "application/json"});
-        var json = JSON.stringify({ errorCode: 4, error: "Missing body" });
+        json = JSON.stringify({ errorCode: 4, error: "Missing body" });
         response.write(json);
         response.end();
     }
 };
 
 poll.delete = function(response, body) {
+    var json;
     if (body) {
         pg.connect(connectionString, function(err, client, done) {
             if(err) {
@@ -132,14 +137,14 @@ poll.delete = function(response, body) {
                 });
             } else {
                 response.writeHead("400", { "content-type": "application/json"});
-                var json = JSON.stringify({ errorCode: 2, error: "Id is missing" });
+                json = JSON.stringify({ errorCode: 2, error: "Id is missing" });
                 response.write(json);
                 response.end();
             }
         });
     } else {
         response.writeHead("400", { "content-type": "application/json"});
-        var json = JSON.stringify({ errorCode: 4, error: "Missing body" });
+        json = JSON.stringify({ errorCode: 4, error: "Missing body" });
         response.write(json);
         response.end();
     }

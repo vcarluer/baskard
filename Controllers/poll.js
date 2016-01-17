@@ -55,11 +55,13 @@ poll.render = function(polls) {
         plusLink.setAttribute("href", "#");
         plus.appendChild(plusLink);
         var plusText = "";
-            if (poll.useryes) {
+        if (poll.useryes) {
             plusText += "(yes)";
             plusLink.onclick = function () {
                 self.delVote({ pollId: poll.id });  
             };
+            
+            plusText += " " + poll.yes;
         } else {
             plusText += "yes";
             plusLink.onclick = function () {
@@ -67,7 +69,6 @@ poll.render = function(polls) {
             };
         }
         
-        plusText += " " + poll.yes;
         plusLink.innerHTML = plusText;
         
         var moins = document.createElement("div");
@@ -82,13 +83,14 @@ poll.render = function(polls) {
             moinsLink.onclick = function () {
                 self.delVote({ pollId: poll.id});  
             };
+            
+            moinsText += " " + poll.no;
         } else {
             moinsText += "no";
             moinsLink.onclick = function () {
                 self.vote({ pollId: poll.id, no: true});  
             };
         }
-        moinsText += " " + poll.no;
         moinsLink.innerHTML = moinsText;
         
         pollListDom.appendChild(pollDom);
@@ -179,5 +181,13 @@ poll.delVote = function(data) {
 };
 
 function getUserId () {
-    return user.id;
+    var id;
+    if (localStorage.user) {
+        var user = JSON.parse(localStorage.user);
+        if (user) {
+            id = user.secret;
+        }
+    }
+    
+    return id;
 }

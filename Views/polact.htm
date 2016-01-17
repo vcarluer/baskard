@@ -5,9 +5,18 @@
     <script type="text/javascript" src="libs/reqwest.min.js"></script>
     <script type="text/javascript" src="libs/polact.js"></script>
     <script type="text/javascript" src="Controllers/poll.js"></script>
+    <script type="text/javascript" src="Controllers/account.js"></script>
 </head>
 <body>
-    <div><input id="userId" type="text" value="0"/></div><button id="login">Login</button>
+    <div id="loginregister">
+        <div>Login:@<input id="login" type="text"/></div>
+        <div>Password:<input id="password" type="password"/></div>
+        <button id="loginButton">Login</button>
+        <button id="registerButton">Register</button>
+    </div>
+    <div id="loggedIn">
+        <button id="disconnectButton">Disconnect</button>
+    </div>
     <div class="ask">
         <input type="text" id="ask" /><button id="askSubmit">Ask</button>
     </div>

@@ -1,6 +1,8 @@
 var controllers = {};
+controllers.account = require("./APIControllers/account.js");
 controllers.poll = require("./APIControllers/poll.js");
 controllers.vote = require("./APIControllers/vote.js");
+
 var url = require("url");
 
 var api = function() {};
@@ -24,14 +26,27 @@ api.route = function(request, response) {
                     bodyObject = {};
                 }
                 
-                if (request.headers.authentication) {
-                    bodyObject.userId = request.headers.authentication;
-                } else {
-                    response.writeHead("401", { "content-type": "application/json"});
-                    return response.end();
-                }
+                bodyObject.userId = null;
+                var unauthorized = true;
                 
-                controller[method](response, bodyObject);
+                if (controllerName === "account") {
+                    controller[method](response, bodyObject, request);
+                } else {
+                    if (request.headers.authentication && request.headers.authentication != "undefined") {
+                        controllers.account.getIdBySecret(request.headers.authentication, function(id) {
+                            bodyObject.userId = id;    
+                            if (!bodyObject.userId) {
+                               response.writeHead("401", { "content-type": "application/json"});
+                                return response.end();
+                            }
+                            
+                            controller[method](response, bodyObject, request);
+                        });
+                    } else {
+                        response.writeHead("401", { "content-type": "application/json"});
+                        return response.end();
+                    }
+                }
             });
         }
     }
