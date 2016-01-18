@@ -43,7 +43,7 @@ account.get = function(response, body, request) {
             }
             
             var pendingLogin = result.rows[0];
-            query = "DELETE FROM pendinglogin where token = '" + token + "';";
+            query = "DELETE FROM pendinglogin where accountId = " + pendingLogin.id + ";";
             
             console.log("running query: " + query);
             client.query(query, function(err, result) {
@@ -93,7 +93,14 @@ account.post = function(response, body, request) {
                 return response.end();
             }
             
-            var query = "select id from account where email = '" + body.email.replace(/'/g, "''") + "';";
+            if (!body.login || body.login.length > 32) {
+                response.writeHead("403", { "content-type": "application/json"});
+                json = JSON.stringify({ errorCode: 1, error: "login cannot be null and longer than 32." });
+                response.write(json);
+                return response.end();
+            }
+            
+            var query = "select id, login from account where email = '" + body.email.replace(/'/g, "''") + "';";
             console.log("running query: " + query);
             client.query(query, function(err, result) {
                 //call `done()` to release the client back to the pool 
@@ -125,11 +132,27 @@ account.post = function(response, body, request) {
                               return console.error('error running query', err);
                             }
                         
-                            self.sendLoginToken(result.rows[0].id, body.email, true, response, client, done);
+                            self.sendLoginToken(result.rows[0].id, body.email, body.login, true, response, client, done);
                         });
                     });
                 } else {
-                    self.sendLoginToken(result.rows[0].id, body.email, false, response, client, done);
+                    if (result.rows[0].login !== body.login) {
+                        var accountId = result.rows[0].id;
+                        query = "UPDATE account set login = '" + body.login.replace(/'/g, "''") + "' where email = '" + body.email.replace(/'/g, "''") + "';";
+                        console.log("running query: " + query);
+                        client.query(query, function(err, result) {
+                            //call `done()` to release the client back to the pool 
+                            done();
+                            
+                            if(err) {
+                              return console.error('error running query', err);
+                            }
+                        
+                            self.sendLoginToken(accountId, body.email, body.login, false, response, client, done);
+                        });
+                    } else {
+                        self.sendLoginToken(result.rows[0].id, body.email, body.login, false, response, client, done);    
+                    }
                 }
             });
         });
@@ -141,7 +164,7 @@ account.post = function(response, body, request) {
     }
 };
 
-account.sendLoginToken = function(accountId, email, newAccount, response, client, done) {
+account.sendLoginToken = function(accountId, email, login, newAccount, response, client, done) {
     var json;
     if (!email) {
         response.writeHead("500", { "content-type": "application/json"});
@@ -184,11 +207,11 @@ account.sendLoginToken = function(accountId, email, newAccount, response, client
             var body = "";
             var htmlBody = "";
             if (newAccount) {
-                body = "Hello, you have successfully set up your polact account and you can now access it by clicking on the following link: " + tokenLink;
-                htmlBody = "Hello, you have successfully set up your <b>polact</b> account and you can now access it by <b>clicking on the following link</b>: " + tokenLink;
+                body = "Hello " + login + ", you have successfully set up your polact account and you can now access it by clicking on the following link: " + tokenLink;
+                htmlBody = "Hello <b>" + login + "</b>, you have successfully set up your <b>polact</b> account and you can now access it by <b>clicking on the following link</b>: " + tokenLink;
             } else {
-                body = "Hello, welcome back to polact. Click the following link to log in: " + tokenLink;
-                htmlBody = "Hello, welcome back to <b>polact</b>. Click the following link to log in: " + tokenLink;
+                body = "Hello " + login + ", welcome back to polact. Click the following link to log in: " + tokenLink;
+                htmlBody = "Hello <b>" + login + "</b>, welcome back to <b>polact</b>. Click the following link to log in: " + tokenLink;
             }
             
             

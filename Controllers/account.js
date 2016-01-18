@@ -54,6 +54,7 @@ account.connect = function() {
 account.logSuccess = function(account) {
     localStorage.user = JSON.stringify(account);
     this.render();
+    poll.refresh();
 };
 
 account.disconnect = function() {
