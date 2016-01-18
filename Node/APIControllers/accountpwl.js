@@ -1,3 +1,8 @@
+var host = "polact-vcarluer.c9users.io";
+if (!process.env.IP) {
+     host = "prolact.herokuapp.com";   
+}
+
 var pg = require('pg');
 var nodemailer = require("nodemailer");
 var passphrase = "cette application rox du poney";
@@ -93,13 +98,14 @@ account.post = function(response, body, request) {
                 return response.end();
             }
             
-            if (!body.login || body.login.length > 32) {
+            if (!body.email.indexOf("@")) {
                 response.writeHead("403", { "content-type": "application/json"});
-                json = JSON.stringify({ errorCode: 1, error: "login cannot be null and longer than 32." });
+                json = JSON.stringify({ errorCode: 1, error: "email does not contain any @." });
                 response.write(json);
                 return response.end();
             }
             
+            var login   = body.email.substring(0, body.email.lastIndexOf("@"));
             var query = "select id, login from account where email = '" + body.email.replace(/'/g, "''") + "';";
             console.log("running query: " + query);
             client.query(query, function(err, result) {
@@ -112,7 +118,7 @@ account.post = function(response, body, request) {
                 
                 if (result.rowCount === 0) {
                     // Create email account if does not exist
-                    query = "INSERT into account (login, email) values('" + body.login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "');";
+                    query = "INSERT into account (login, email) values('" + login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "');";
                     console.log("running query: " + query);
                     client.query(query, function(err, result) {
                         //call `done()` to release the client back to the pool 
@@ -132,13 +138,13 @@ account.post = function(response, body, request) {
                               return console.error('error running query', err);
                             }
                         
-                            self.sendLoginToken(result.rows[0].id, body.email, body.login, true, response, client, done);
+                            self.sendLoginToken(result.rows[0].id, body.email, login, true, response, client, done);
                         });
                     });
                 } else {
-                    if (result.rows[0].login !== body.login) {
+                    if (result.rows[0].login !== login) {
                         var accountId = result.rows[0].id;
-                        query = "UPDATE account set login = '" + body.login.replace(/'/g, "''") + "' where email = '" + body.email.replace(/'/g, "''") + "';";
+                        query = "UPDATE account set login = '" + login.replace(/'/g, "''") + "' where email = '" + body.email.replace(/'/g, "''") + "';";
                         console.log("running query: " + query);
                         client.query(query, function(err, result) {
                             //call `done()` to release the client back to the pool 
@@ -148,10 +154,10 @@ account.post = function(response, body, request) {
                               return console.error('error running query', err);
                             }
                         
-                            self.sendLoginToken(accountId, body.email, body.login, false, response, client, done);
+                            self.sendLoginToken(accountId, body.email, login, false, response, client, done);
                         });
                     } else {
-                        self.sendLoginToken(result.rows[0].id, body.email, body.login, false, response, client, done);    
+                        self.sendLoginToken(result.rows[0].id, body.email, login, false, response, client, done);    
                     }
                 }
             });
@@ -199,8 +205,7 @@ account.sendLoginToken = function(accountId, email, login, newAccount, response,
               return console.error('error running query', err);
             }
         
-            // "prolact.herokuapp.com"
-            var tokenLink = "https://" + "polact-vcarluer.c9users.io" + "?token=" + token;
+            var tokenLink = "https://" + host + "?token=" + token;
             
             // NB! No need to recreate the transporter object. You can use
             // the same transporter object for all e-mails
@@ -217,7 +222,7 @@ account.sendLoginToken = function(accountId, email, login, newAccount, response,
             
             // setup e-mail data with unicode symbols
             var mailOptions = {
-                from: 'polact application ✔ <noreply@polact.com>', // sender address
+                from: 'polact application <noreply@polact.com>', // sender address
                 to: email, // list of receivers
                 subject: '✔ Connect to polact', // Subject line
                 text: body, // plaintext body

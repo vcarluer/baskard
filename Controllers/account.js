@@ -31,10 +31,9 @@ account.login = function(token) {
 
 account.connect = function() {
     var self = this;
-    var login = document.getElementById("login").value;
     var email = document.getElementById("email").value;
-    var data = { login: login, email: email };
-    if (login && email) {
+    var data = { email: email };
+    if (email) {
         reqwest({
            url: "/api/accountpwl",
            data: JSON.stringify(data),
