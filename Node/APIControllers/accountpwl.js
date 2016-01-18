@@ -73,7 +73,49 @@ account.get = function(response, body, request) {
             });
         });
     });
-}
+};
+
+account.patch = function(response, body, request) {
+    var json;
+    console.log("received: " + body);
+    if (body) {
+        pg.connect(connectionString, function(err, client, done) {
+            if(err) {
+                return console.error('error fetching client from pool', err);
+            }
+            
+            if (typeof body.login == 'undefined'){
+                response.writeHead("400", { "content-type": "application/json"});
+                json = JSON.stringify({ errorCode: 5, error: "Missing data in body" });
+                response.write(json);
+                return response.end();
+            }
+            
+            if (!body.login || body.login.length > 32) {
+                response.writeHead("403", { "content-type": "application/json"});
+                json = JSON.stringify({ errorCode: 1, error: "login cannot be null and longer than 32 characters." });
+                response.write(json);
+                return response.end();
+            }
+            
+            var query = "UPDATE account set login = '" + body.login.replace(/'/g, "''") + "' where id = " + body.userId + ";";
+            console.log("running query: " + query);
+            client.query(query, function(err, result) {
+                //call `done()` to release the client back to the pool 
+                done();
+                
+                if(err) {
+                  return console.error('error running query', err);
+                }
+                
+                response.writeHead("200", { "content-type": "application/json"});
+                json = JSON.stringify({ message: "login updated" });
+                response.write(json);
+                return response.end();
+            });
+        });
+    }
+};
 
 account.post = function(response, body, request) {
     var json, self = this;
@@ -142,23 +184,7 @@ account.post = function(response, body, request) {
                         });
                     });
                 } else {
-                    if (result.rows[0].login !== login) {
-                        var accountId = result.rows[0].id;
-                        query = "UPDATE account set login = '" + login.replace(/'/g, "''") + "' where email = '" + body.email.replace(/'/g, "''") + "';";
-                        console.log("running query: " + query);
-                        client.query(query, function(err, result) {
-                            //call `done()` to release the client back to the pool 
-                            done();
-                            
-                            if(err) {
-                              return console.error('error running query', err);
-                            }
-                        
-                            self.sendLoginToken(accountId, body.email, login, false, response, client, done);
-                        });
-                    } else {
-                        self.sendLoginToken(result.rows[0].id, body.email, login, false, response, client, done);    
-                    }
+                    self.sendLoginToken(result.rows[0].id, body.email, login, false, response, client, done);
                 }
             });
         });

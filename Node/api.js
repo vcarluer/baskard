@@ -29,7 +29,7 @@ api.route = function(request, response) {
                 bodyObject.userId = null;
                 var unauthorized = true;
                 
-                if (controllerName === "accountpwl") {
+                if (controllerName === "accountpwl" && method !== "patch") {
                     controller[method](response, bodyObject, request);
                 } else {
                     if (request.headers["x-authentication"] && request.headers["x-authentication"] != "undefined") {

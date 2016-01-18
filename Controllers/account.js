@@ -75,13 +75,32 @@ account.get = function () {
     return account;
 };
 
+account.getAPIKey = function () {
+    var id;
+    try {
+        if (localStorage.user) {
+            var user = JSON.parse(localStorage.user);
+            if (user) {
+                id = user.secret;
+            }
+        }
+        
+        return id;
+    }
+    catch(err) {
+        console.log(err);
+    }
+};
+
 account.render = function() {
     var account = this.get(), loggedIn = account.secret, self = this;
-    
+    document.getElementById("changeLogin").style.display = "none";
     if (loggedIn) {
         document.getElementById("loginregister").style.display = "none";
         document.getElementById("loggedIn").style.display = "block";
         document.getElementById("loggedIn").innerHTML = "@" + account.login;
+        document.getElementById("loggedIn").onclick = function() { self.startChangeLogin(account.login); };
+        
         var disconnectButton = document.createElement("button");
         disconnectButton.innerHTML = "Disconnect";
         disconnectButton.onclick = function () { self.disconnect(); };
@@ -89,6 +108,48 @@ account.render = function() {
     } else {
         document.getElementById("loginregister").style.display = "block";
         document.getElementById("loggedIn").style.display = "none";
+    }
+};
+
+account.startChangeLogin = function(login) {
+    var self = this;
+    document.getElementById("loggedIn").style.display = "none";
+    document.getElementById("changeLogin").style.display = "block";
+    document.getElementById("newLogin").value = login;
+    document.getElementById("changeLoginButton").onclick = function() {
+          self.changeLogin(document.getElementById("newLogin").value);
+    };
+    
+    document.getElementById("cancelLoginButton").onclick = function() {
+        document.getElementById("loggedIn").style.display = "block";
+        document.getElementById("changeLogin").style.display = "none";
+    };
+};
+
+account.changeLogin = function(newLogin) {
+    if (newLogin) {
+        var self = this, data = { login: newLogin }, account = this.get();;
+        if (account) {
+            reqwest({
+               url: "/api/accountpwl",
+               method: "PATCH",
+               data: JSON.stringify(data),
+               headers: {
+                   'x-authentication': account.secret
+               },
+               success: function (resp) {
+                    console.log("login changed " + resp);
+                    
+                    account.login = newLogin;
+                    localStorage.user = JSON.stringify(account);
+                    self.render();
+               },
+               error: function(resp) {
+                   console.log(resp);
+                   self.render();
+               }    
+            });    
+        }
     }
 };
 

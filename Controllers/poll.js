@@ -16,7 +16,7 @@ poll.refresh = function() {
     reqwest({
        url: "/api/poll",
        headers: {
-           'x-authentication': getUserId()
+           'x-authentication': account.getAPIKey()
        },
        method: "GET",
        success: function (resp) {
@@ -62,14 +62,14 @@ poll.render = function(polls) {
         var plusText = "";
 
         if (poll.useryes) {
-            plusText += "(yes)";
+            plusText += "(<i class='fa fa-thumbs-o-up'></i>)";
             plusLink.onclick = function () {
                 self.delVote({ pollId: poll.id });  
             };
             
             plusText += " " + poll.yes;
         } else {
-            plusText += "yes";
+            plusText += "<i class='fa fa-thumbs-o-up'></i>";
             plusLink.onclick = function () {
                 self.vote({ pollId: poll.id, yes: true});  
             };
@@ -85,14 +85,14 @@ poll.render = function(polls) {
         moins.appendChild(moinsLink);
         var moinsText = "";
         if (poll.userno) {
-            moinsText += "(no)";
+            moinsText += "(<i class='fa fa-thumbs-o-down'></i>)";
             moinsLink.onclick = function () {
                 self.delVote({ pollId: poll.id});  
             };
             
             moinsText += " " + poll.no;
         } else {
-            moinsText += "no";
+            moinsText += "<i class='fa fa-thumbs-o-down'></i>";
             moinsLink.onclick = function () {
                 self.vote({ pollId: poll.id, no: true});  
             };
@@ -115,7 +115,7 @@ poll.ask = function(question) {
        method: "POST",
        data: JSON.stringify(data),
        headers: {
-           'x-authentication': getUserId()
+           'x-authentication': account.getAPIKey()
        },
        success: function (resp) {
            console.log("question asked! " + resp);
@@ -135,7 +135,7 @@ poll.delete = function(id) {
        method: "DELETE",
        data: JSON.stringify(data),
        headers: {
-           'x-authentication': getUserId()
+           'x-authentication': account.getAPIKey()
        },
        success: function (resp) {
            console.log(id + " deleted");
@@ -154,7 +154,7 @@ poll.vote = function(data) {
        method: "POST",
        data: JSON.stringify(data),
        headers: {
-           'x-authentication': getUserId()
+           'x-authentication': account.getAPIKey()
        },
        success: function (resp) {
            console.log("vote done " + resp);
@@ -174,7 +174,7 @@ poll.delVote = function(data) {
        method: "DELETE",
        data: JSON.stringify(data),
        headers: {
-           'x-authentication': getUserId()
+           'x-authentication': account.getAPIKey()
        },
        success: function (resp) {
            console.log("vote removed " + resp);
@@ -185,20 +185,3 @@ poll.delVote = function(data) {
        }
    });
 };
-
-function getUserId () {
-    var id;
-    try {
-        if (localStorage.user) {
-            var user = JSON.parse(localStorage.user);
-            if (user) {
-                id = user.secret;
-            }
-        }
-        
-        return id;
-    }
-    catch(err) {
-        console.log(err);
-    }
-}
