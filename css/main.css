@@ -20,3 +20,7 @@ button {
     border-width: 1px;
     border-color: black;
 }
+
+#loginAvatar {
+    width: 50px;
+}

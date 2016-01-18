@@ -29,7 +29,7 @@ account.get = function(response, body, request) {
             return console.error('error fetching client from pool', err);
         }
         
-        var query = "SELECT pendinglogin.token as token, pendinglogin.accountId as id, account.login as login FROM pendinglogin " +
+        var query = "SELECT pendinglogin.token as token, pendinglogin.accountId as id, account.login as login, account.avatar as avatar FROM pendinglogin " +
                     "LEFT OUTER JOIN account on account.id = pendinglogin.accountId WHERE pendinglogin.token = '" + token + "';";
         console.log("running query: " + query);
         client.query(query, function(err, result) {
@@ -62,7 +62,13 @@ account.get = function(response, body, request) {
                 getSecret(request, pendingLogin.id.toString(), pendingLogin.login, function(secret) {
                     if (secret) {
                         response.writeHead("200", { "content-type": "application/json"});
-                        json = JSON.stringify({ id: pendingLogin.id, login: pendingLogin.login, secret: secret });
+                        json = JSON.stringify(
+                            { 
+                                id: pendingLogin.id, 
+                                login: pendingLogin.login, 
+                                secret: secret,
+                                avatar: pendingLogin.avatar
+                            });
                         response.write(json);
                         return response.end();    
                     } else {
@@ -160,17 +166,8 @@ account.post = function(response, body, request) {
                 
                 if (result.rowCount === 0) {
                     // Create email account if does not exist
-                    query = "INSERT into account (login, email) values('" + login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "');";
-                    console.log("running query: " + query);
-                    client.query(query, function(err, result) {
-                        //call `done()` to release the client back to the pool 
-                        done();
-                        
-                        if(err) {
-                          return console.error('error running query', err);
-                        }
-                        
-                        query = "select id from account where email = '" + body.email.replace(/'/g, "''") + "';";
+                    account.createAvatar(body.email, function(avatar) {
+                        query = "INSERT into account (login, email, avatar) values('" + login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "','" + avatar + "');";
                         console.log("running query: " + query);
                         client.query(query, function(err, result) {
                             //call `done()` to release the client back to the pool 
@@ -179,8 +176,19 @@ account.post = function(response, body, request) {
                             if(err) {
                               return console.error('error running query', err);
                             }
-                        
-                            self.sendLoginToken(result.rows[0].id, body.email, login, true, response, client, done);
+                            
+                            query = "select id from account where email = '" + body.email.replace(/'/g, "''") + "';";
+                            console.log("running query: " + query);
+                            client.query(query, function(err, result) {
+                                //call `done()` to release the client back to the pool 
+                                done();
+                                
+                                if(err) {
+                                  return console.error('error running query', err);
+                                }
+                            
+                                self.sendLoginToken(result.rows[0].id, body.email, login, true, response, client, done);
+                            });
                         });
                     });
                 } else {
@@ -368,6 +376,38 @@ function Uint8ArrayConcat(first, second)
     result.set(second, firstLength);
 
     return result;
+}
+
+account.createAvatar = function(email, callback) {
+      var avatar = getGravatarImage(email, ".jpg?s=200&d=mm");
+      console.log("Gravatar image " + avatar);
+      callback(avatar);
+};
+
+/**
+ * Gets a gravatar image for the specified email address and optional arguments.
+ * @param  {String} email The email address to get a profile image from Gravatar.
+ * @param  {String} args  Arguments to append to the end of the Gravatar URL. Optional, defaults to "".
+ * @return {String}       A fully qualified HREF for a gravatar image.
+ */
+function getGravatarImage(email, args) {
+    args = args || "";
+    var BASE_URL = "//www.gravatar.com/avatar/";
+    // IE: //www.gravatar.com/avatar/e04f525530dafcf4f5bda069d6d59790.jpg?s=200
+    return (BASE_URL + md5(email) + args).trim();
+}
+
+
+/**
+ * MD5 hashes the specified string.
+ * @param  {String} str A string to hash.
+ * @return {String}     The hashed string.
+ */
+function md5(str) {
+    str = str.toLowerCase().trim();
+    var hash = crypto.createHash("md5");
+    hash.update(str);
+    return hash.digest("hex");
 }
 
 module.exports = account;
