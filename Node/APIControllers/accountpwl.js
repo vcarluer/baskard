@@ -1,6 +1,6 @@
 var host = "polact-vcarluer.c9users.io";
 if (!process.env.IP) {
-     host = "prolact.herokuapp.com";   
+     host = "polact.herokuapp.com";   
 }
 
 var pg = require('pg');
