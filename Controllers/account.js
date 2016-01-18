@@ -98,7 +98,7 @@ account.render = function() {
     if (loggedIn) {
         document.getElementById("loginregister").style.display = "none";
         document.getElementById("loggedIn").style.display = "block";
-        document.getElementById("loggedIn").innerHTML = "@" + account.login;
+        document.getElementById("loggedIn").innerHTML = "@" + account.login + "<i class='fa fa-pencil'></i>";
         document.getElementById("loggedIn").onclick = function() { self.startChangeLogin(account.login); };
         
         var disconnectButton = document.createElement("button");

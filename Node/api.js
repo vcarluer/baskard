@@ -9,8 +9,20 @@ var api = function() {};
 api.root = "/api"
 api.route = function(request, response) {
     var requestUrl = url.parse(request.url);
-    var controllerName = requestUrl.pathname.slice(api.root.length + 1);
-    var controller = controllers[controllerName]
+    var resources = requestUrl.pathname.slice(api.root.length + 1).split(/\//);
+    var controllerName;
+    var resourceId = null;
+    if (resources.length > 0) {
+        controllerName = resources[0];
+        if (resources.length > 1) {
+            resourceId = resources[1];
+        }
+    }
+    
+    var controller;
+    if (controllerName) {
+        controller = controllers[controllerName]
+    }
     if (controller) {
         var method = request.method.toLocaleLowerCase();
          if (controller[method]) {
@@ -30,7 +42,7 @@ api.route = function(request, response) {
                 var unauthorized = true;
                 
                 if (controllerName === "accountpwl" && method !== "patch") {
-                    controller[method](response, bodyObject, request);
+                    controller[method](response, bodyObject, request, resourceId);
                 } else {
                     if (request.headers["x-authentication"] && request.headers["x-authentication"] != "undefined") {
                         controllers.accountpwl.getIdBySecret(request, request.headers["x-authentication"], function(id) {
@@ -40,7 +52,7 @@ api.route = function(request, response) {
                                 return response.end();
                             }
                             
-                            controller[method](response, bodyObject, request);
+                            controller[method](response, bodyObject, request, resourceId);
                         });
                     } else {
                         if (controllerName === "poll" && method === "get") {

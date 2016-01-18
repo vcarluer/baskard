@@ -17,7 +17,17 @@ ready(function() {
     account.login(token);
   } else {
     account.render();
-    poll.refresh();  
+    
+    var path = window.location.pathname;
+    var pollId;
+    if (path) {
+      var paths = path.slice(1).split(/\//);
+      if (paths.length === 2 && paths[0] === "poll") {
+        pollId = paths[1];      
+      }
+    }
+    
+    poll.refresh(pollId);
   }
   
 });

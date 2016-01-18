@@ -2,7 +2,7 @@ var pg = require('pg');
 
 var connectionString = "postgres://fvtjauwobkigbf:8reHZ_30Uj-6js4s1nY66ktN0l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/d6t3vp05h61n8r?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 var poll = function() {};
-poll.get = function(response, body) {
+poll.get = function(response, body, request, id) {
     var polls = [];
     
     pg.connect(connectionString, function(err, client, done) {
@@ -11,7 +11,11 @@ poll.get = function(response, body) {
         }
     
         var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, poll.ownerId as ownerId, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll '+
-                    'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId + ' LIMIT 100;';
+                    'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId;
+        if (id !== null) {
+            query += " where poll.id = " + id;
+        }
+        query += ' LIMIT 100;';
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();

@@ -12,9 +12,14 @@ poll.bind = function() {
     };
 };
 
-poll.refresh = function() {
+poll.refresh = function(pollId) {
+    var url = "/api/poll";
+    if (pollId) {
+        url += "/" + pollId;
+    }
+    
     reqwest({
-       url: "/api/poll",
+       url: url,
        headers: {
            'x-authentication': account.getAPIKey()
        },
@@ -38,10 +43,18 @@ poll.render = function(polls) {
     }
     polls.forEach(function(poll) {
         var pollDom = document.createElement("div");
-        poll.className = "poll";
+        pollDom.className = "poll";
+        var pollLink = document.createElement("a");
+        pollLink.setAttribute("href", "#");
+        pollLink.onclick = function() {
+            window.location.href = "/poll/" + poll.id;
+        };
+        
+        pollDom.appendChild(pollLink);
+        
         var question = document.createElement("div");
         question.className = "question";
-        pollDom.appendChild(question);
+        pollLink.appendChild(question);
         question.innerHTML = poll.question;
         
         if (userAccount.id === poll.ownerid) {

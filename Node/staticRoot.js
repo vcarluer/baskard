@@ -10,7 +10,13 @@ var authorizedContentTypes = {
 
 
 staticRoot.write = function (pathname, response) {
-    var resource = pathname.slice(1);
+    var basepath = pathname.slice(1);
+    var resources = basepath.split(/\//);
+    var resource;
+    if (resources[0] !== "poll") {
+        resource = basepath;
+    }
+    
     if (!resource) {
         response.writeHead("200", { "content-type": "text/html"});
         var fsPath = "Views/polact.htm";
