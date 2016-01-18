@@ -5,6 +5,7 @@
   "author": "Vincent Carluer <vcarluer@gmail.com>",
   "main": "index.js",
   "dependencies": {
-    "pg": "4.4.3"
+    "pg": "4.4.3",
+    "nodemailer": "2.0.0"
   }
 }

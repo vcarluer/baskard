@@ -1,5 +1,5 @@
 # polact
-Poll for the next activity
+Simple, social poll system
 
 postgresql 
 doc: http://www.postgresql.org/docs/current/static/sql-createtable.html

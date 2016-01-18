@@ -4,50 +4,44 @@ var account = function() {};
 
 account.bind = function() {
     var self = this;
-    document.getElementById("loginButton").onclick = function() {
-        self.login();
-    };
-    
-    document.getElementById("registerButton").onclick = function() {
-        self.register();
+    document.getElementById("connectButton").onclick = function() {
+        self.connect();
     };
 };
 
-account.login = function() {
+account.login = function(token) {
     var self = this;
-    var login = document.getElementById("login").value;
-    var password = document.getElementById("password").value;
-    if (login && password) {
+    if (token) {
         reqwest({
-           url: "/api/account",
-           headers: {
-               'x-login': login,
-               'x-password': password
-           },
-           method: "GET",
-           success: function (resp) {
-               self.logSuccess(resp);
-           },
-           error: function(resp) {
-               localStorage.user = "";
-               console.log(resp);
-           }
-        });        
+        url: "/api/accountpwl",
+        headers: {
+           'x-pending-token': token
+        },
+        method: "GET",
+        success: function (resp) {
+           self.logSuccess(resp);
+        },
+        error: function(resp) {
+           localStorage.user = "";
+           console.log(resp);
+        }
+        });    
     }
 };
 
-account.register = function() {
+account.connect = function() {
     var self = this;
     var login = document.getElementById("login").value;
-    var password = document.getElementById("password").value;
-    var data = { login: login, password: password };
-    if (login && password) {
+    var email = document.getElementById("email").value;
+    var data = { login: login, email: email };
+    if (login && email) {
         reqwest({
-           url: "/api/account",
+           url: "/api/accountpwl",
            data: JSON.stringify(data),
            method: "POST",
            success: function (resp) {
-               self.logSuccess(resp);
+               console.log("Mail sent");
+               // self.connectSuccess(resp);
            },
            error: function(resp) {
                localStorage.user = "";
@@ -98,3 +92,10 @@ account.render = function() {
         document.getElementById("loggedIn").style.display = "none";
     }
 };
+
+function getParameterByName(name) {
+	name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+	return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}

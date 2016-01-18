@@ -10,7 +10,14 @@ function ready(fn) {
 
 ready(function() {
   account.bind();
-  account.render();
   poll.bind();
-  poll.refresh();
+  
+  var token = getParameterByName("token");
+  if (token) {
+    account.login(token);
+  } else {
+    account.render();
+    poll.refresh();  
+  }
+  
 });

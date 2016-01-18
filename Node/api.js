@@ -1,5 +1,5 @@
 var controllers = {};
-controllers.account = require("./APIControllers/account.js");
+controllers.accountpwl = require("./APIControllers/accountpwl.js");
 controllers.poll = require("./APIControllers/poll.js");
 controllers.vote = require("./APIControllers/vote.js");
 
@@ -29,11 +29,11 @@ api.route = function(request, response) {
                 bodyObject.userId = null;
                 var unauthorized = true;
                 
-                if (controllerName === "account") {
+                if (controllerName === "accountpwl") {
                     controller[method](response, bodyObject, request);
                 } else {
-                    if (request.headers.authentication && request.headers.authentication != "undefined") {
-                        controllers.account.getIdBySecret(request, request.headers.authentication, function(id) {
+                    if (request.headers["x-authentication"] && request.headers["x-authentication"] != "undefined") {
+                        controllers.accountpwl.getIdBySecret(request, request.headers["x-authentication"], function(id) {
                             bodyObject.userId = id;    
                             if (!bodyObject.userId) {
                                response.writeHead("401", { "content-type": "application/json"});

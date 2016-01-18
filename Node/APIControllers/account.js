@@ -214,7 +214,8 @@ function decryptAndTestSecret(request, secret, callback) {
                 json += dataStream.toString();
             } else {
                 var secretAccount = JSON.parse(json);
-                if (ip === secretAccount.ip && userAgent === secretAccount.userAgent) {
+                // ip === secretAccount.ip && Do not test ip it changes for same device and browser
+                if (userAgent === secretAccount.userAgent) {
                     return callback(secretAccount);    
                 } else {
                     return callback();

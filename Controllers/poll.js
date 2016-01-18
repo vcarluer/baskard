@@ -16,7 +16,7 @@ poll.refresh = function() {
     reqwest({
        url: "/api/poll",
        headers: {
-           'authentication': getUserId()
+           'x-authentication': getUserId()
        },
        method: "GET",
        success: function (resp) {
@@ -115,7 +115,7 @@ poll.ask = function(question) {
        method: "POST",
        data: JSON.stringify(data),
        headers: {
-           'authentication': getUserId()
+           'x-authentication': getUserId()
        },
        success: function (resp) {
            console.log("question asked! " + resp);
@@ -135,7 +135,7 @@ poll.delete = function(id) {
        method: "DELETE",
        data: JSON.stringify(data),
        headers: {
-           'authentication': getUserId()
+           'x-authentication': getUserId()
        },
        success: function (resp) {
            console.log(id + " deleted");
@@ -154,7 +154,7 @@ poll.vote = function(data) {
        method: "POST",
        data: JSON.stringify(data),
        headers: {
-           'authentication': getUserId()
+           'x-authentication': getUserId()
        },
        success: function (resp) {
            console.log("vote done " + resp);
@@ -174,7 +174,7 @@ poll.delVote = function(data) {
        method: "DELETE",
        data: JSON.stringify(data),
        headers: {
-           'authentication': getUserId()
+           'x-authentication': getUserId()
        },
        success: function (resp) {
            console.log("vote removed " + resp);
