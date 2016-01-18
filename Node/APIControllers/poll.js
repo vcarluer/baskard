@@ -10,7 +10,7 @@ poll.get = function(response, body) {
             return console.error('error fetching client from pool', err);
         }
     
-        var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll '+
+        var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, poll.ownerId as ownerId, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll '+
                     'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId + ' LIMIT 100;';
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 

@@ -31,6 +31,8 @@ poll.refresh = function() {
 poll.render = function(polls) {
     var self = this;
     var pollListDom = document.getElementById("polls");
+    var userAccount = account.get();
+    
     while (pollListDom.hasChildNodes()) {
         pollListDom.removeChild(pollListDom.lastChild);
     }
@@ -41,12 +43,15 @@ poll.render = function(polls) {
         question.className = "question";
         pollDom.appendChild(question);
         question.innerHTML = poll.question;
-        var del = document.createElement("button");
-        pollDom.appendChild(del);
-        del.innerHTML = "del";
-        del.onclick = function () {
-            self.delete(poll.id);
-        };
+        
+        if (userAccount.id === poll.ownerid) {
+            var del = document.createElement("button");
+            pollDom.appendChild(del);
+            del.innerHTML = "del";
+            del.onclick = function () {
+                self.delete(poll.id);
+            };    
+        }
         
         var plus = document.createElement("div");
         plus.className = "choice";
@@ -55,6 +60,7 @@ poll.render = function(polls) {
         plusLink.setAttribute("href", "#");
         plus.appendChild(plusLink);
         var plusText = "";
+
         if (poll.useryes) {
             plusText += "(yes)";
             plusLink.onclick = function () {
