@@ -14,7 +14,7 @@ poll.get = function(response, body, request, id) {
         if (id !== null) {
             query += " where id = " + id;
         }
-        query += " order by id LIMIT 100;";
+        query += " order by id desc LIMIT 100;";
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();

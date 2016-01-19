@@ -93,30 +93,39 @@ poll.render = function(polls) {
         votesDiv.className = "votes";
         pollDom.appendChild(votesDiv);
         
+         // user has voted
+        var hasVoted = userAccount && 
+                        (poll.yesers && poll.yesers[userAccount.id]) ||
+                        (poll.noers && poll.noers[userAccount.id]);
+        
+        
         var plus = document.createElement("div");
         plus.className = "voteYes vote";
         votesDiv.appendChild(plus);
         var plusLink = document.createElement("a");
         plusLink.setAttribute("href", "#");
         plus.appendChild(plusLink);
-        var plusText = "";
-
-        // if contains owner
+        
+        var yesCount = document.createElement("div");
+        yesCount.className = "count";
+        plusLink.appendChild(yesCount);
+        yesCount.innerHTML = hasVoted ? poll.yesCount : "";
+        
+        var yesButton = document.createElement("i");
+        yesButton.className = "yesButton fa fa-thumbs-o-up";
+        plusLink.appendChild(yesButton);
+        
+        // if yes contains owner
         if (userAccount && poll.yesers && poll.yesers[userAccount.id]) {
-            plusText += "[<i class='fa fa-thumbs-o-up'></i>]";
+            yesButton.className += " blue";
             plusLink.onclick = function () {
                 self.delVote({ pollId: poll.id });  
             };
-            
-            plusText += " " + poll.yesCount;
         } else {
-            plusText += "<i class='fa fa-thumbs-o-up'></i>";
             plusLink.onclick = function () {
                 self.vote({ pollId: poll.id, yes: true});  
             };
         }
-        
-        plusLink.innerHTML = plusText;
         
         var moins = document.createElement("div");
         moins.className = "voteNo vote";
@@ -124,21 +133,27 @@ poll.render = function(polls) {
         var moinsLink = document.createElement("a");
         moinsLink.setAttribute("href", "#");
         moins.appendChild(moinsLink);
-        var moinsText = "";
+        
+        var noCount = document.createElement("div");
+        noCount.className = "count";
+        moinsLink.appendChild(noCount);
+        noCount.innerHTML = hasVoted ? poll.noCount : "";
+        
+        var noButton = document.createElement("i");
+        noButton.className = "noButton fa fa-thumbs-o-down";
+        moinsLink.appendChild(noButton);
+        
+        // if no contains owner
         if (userAccount && poll.noers && poll.noers[userAccount.id]) {
-            moinsText += "[<i class='fa fa-thumbs-o-down'></i>]";
+            noButton.className += " red";
             moinsLink.onclick = function () {
-                self.delVote({ pollId: poll.id});  
+                self.delVote({ pollId: poll.id });  
             };
-            
-            moinsText += " " + poll.noCount;
         } else {
-            moinsText += "<i class='fa fa-thumbs-o-down'></i>";
             moinsLink.onclick = function () {
                 self.vote({ pollId: poll.id, no: true});  
             };
         }
-        moinsLink.innerHTML = moinsText;
         
         self.renderVoters(poll, pollDom);
         
@@ -163,6 +178,22 @@ poll.renderVoter = function(voters, poll, votersDom) {
         var voterDom = document.createElement("img");
         voterDom.className = "voterImage"
         voterDom.src = account.getAvatar(voter.avatar, 20);
+        var floating = document.getElementById("floatingDiv");
+        
+        voterDom.onmouseenter = function(e) {
+            floating.style.display = "block";
+            floating.style.left = e.pageX + "px";
+            floating.style.top = e.pageY + "px";
+            floating.innerHTML = voter.login;
+        };
+        voterDom.onmouseleave = function(e) {
+            floating.style.display = "none";
+        };
+        voterDom.onmousemove = function(e) {
+            floating.style.left = e.pageX + "px";
+            floating.style.top = e.pageY + "px";
+        };
+        
         votersDom.appendChild(voterDom);
     }
 };

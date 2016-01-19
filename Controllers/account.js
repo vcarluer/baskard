@@ -103,6 +103,7 @@ account.render = function() {
         document.getElementById("loggedIn").onclick = function() { self.startChangeLogin(account.login); };
         
         var disconnectButton = document.createElement("button");
+        disconnectButton.id = "disconnectButton";
         disconnectButton.innerHTML = "Disconnect";
         disconnectButton.onclick = function () { self.disconnect(); };
         document.getElementById("loggedIn").appendChild(disconnectButton);

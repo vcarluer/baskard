@@ -10,20 +10,24 @@
     <link rel="stylesheet" type="text/css" href="/css/main.css" />
 </head>
 <body>
-    <div id="loginregister">
-        <div>Email:<input id="email" type="text"/></div>
-        <button id="connectButton">Connect</button>
+    <div id="wrap">
+        <div>TITLE / HEADER</div>
+        <div id="loginregister">
+            <div>Email:<input id="email" type="text"/></div>
+            <button id="connectButton">Connect</button>
+        </div>
+        <a href='http://www.gravatar.com' target='_blank'><img id='loginAvatar'/></a>
+        <div id="loggedIn">
+        </div>
+        <div id="changeLogin">
+            @<input type="text" id="newLogin" multiline/><button id="changeLoginButton">OK</button><button id="cancelLoginButton">X</button>
+        </div>
+        <div class="ask">
+            <textarea id="ask" rows="3"></textarea><button id="askSubmit">Ask</button>
+        </div>
+        <div id="polls">
+        </div>
     </div>
-    <a href='http://www.gravatar.com' target='_blank'><img id='loginAvatar'/></a>
-    <div id="loggedIn">
-    </div>
-    <div id="changeLogin">
-        @<input type="text" id="newLogin"/><button id="changeLoginButton">OK</button><button id="cancelLoginButton">X</button>
-    </div>
-    <div class="ask">
-        <input type="text" id="ask" /><button id="askSubmit">Ask</button>
-    </div>
-    <div id="polls">
-    </div>
+    <div id="floatingDiv"></div>
 </body>
 </html>

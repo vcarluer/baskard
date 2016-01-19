@@ -1,35 +1,72 @@
 body {
     font-size: 24px;
+    background-color: #333333;
+}
+
+#wrap {
+    width: 600px;
+    margin-left: auto ;
+    margin-right: auto ;
+    background-color: white;
 }
 
 button {
-    margin: 5px;   
+    margin: 5px;
+    border: 0px;
+    padding: 10px;
+    border-radius:3px;
+}
+
+textarea {
+    resize:none;
+    margin:0px;
+    padding:0px;
+    border-width:0px;
+    background-color: #EFEFFF;
+}
+
+textarea:hover {
+    background-color: #33FF99;
 }
 
 #loggedIn {
     display: none;
+    width:100%;
 }
 
 #changeLogin {
-    display: none;
+    display: none;;
+}
+
+#disconnectButton {
+    float: right;
 }
 
 .poll {
-    margin: 10px;
-    padding: 10px;
-    border-style: dotted;
+    margin: 0px;
+    margin-bottom: 5px;
+    padding: 3px;
+    border-style: solid;
     border-width: 1px;
-    border-color: black;
+    border-color: #EFEFFF;
+    width: 580
+    border-radius: 3px;
+}
+
+
+.poll:hover {
+    background-color: #EFEFFF;;
 }
 
 .poll .ownerImage {
     width: 50px;
     display: inline-block;
+    border-radius:5px;
 }
 
 .poll .question {
     display: inline-block;
-    font-size: 38px;
+    font-size: 26px;
 }
 
 .poll .ownerInfo {
@@ -46,24 +83,36 @@ button {
 .poll .voterImage {
     width: 30px;
     float:right;
+    border-radius:5px;
+    margin: 2px;
 }
 
 #loginAvatar {
     width: 60px;
+    border-radius:5px;
+    display: block;
+}
+
+.ask {
+    width: 100%;
+    overflow: auto;
 }
 
 #ask {
-    width: 75%;
+    width: 580px;
     display: inline-block;
+    margin-left: 10px;
 }
 
 #askSubmit {
     display: inline-block;
+    margin-top:2px;
+    float: right;
 }
 
 .poll .vote {
-    font-size: 48px;
-    margin: 15px;
+    font-size: 36px;
+    margin: 1px;
 }
 
 .poll a {
@@ -78,11 +127,21 @@ button {
 .poll .voteYes {
     display: inline-block;
     float: right;
+    margin-right: 50px;
+}
+
+.red {
+    color: #CC0000;
+}
+
+.blue {
+    color: #003399;
 }
 
 .poll .voteNo {
     display: inline-block;
     float: left;
+    margin-left: 50px;
 }
 
 .poll .votes {
@@ -93,5 +152,14 @@ button {
 .poll  .voters {
     width: 100%;
     overflow: auto;
-    height: 40px;
+}
+
+.poll .count {
+    display: inline-block;
+}
+
+#floatingDiv {
+    display: none;
+    position: absolute;
+    background-color: white;;
 }
