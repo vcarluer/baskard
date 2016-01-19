@@ -10,10 +10,9 @@ poll.get = function(response, body, request, id) {
             return console.error('error fetching client from pool', err);
         }
     
-        var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, poll.ownerId as ownerId, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll '+
-                    'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId;
+        var query = 'SELECT json from pollDoc';
         if (id !== null) {
-            query += " where poll.id = " + id;
+            query += " where id = " + id;
         }
         query += ' LIMIT 100;';
         client.query(query, function(err, result) {
@@ -52,7 +51,7 @@ poll.post = function(response, body) {
             }
             
             if (body.question.length <= 140) {
-                var query = "INSERT into poll (question, yes, no, ownerid) values ('" + body.question.replace(/'/g, "''") + "', 0, 0, " + body.userId + ");";
+                var query = "INSERT into poll (question, ownerid) values ('" + body.question.replace(/'/g, "''") + "'," + body.userId + ") RETURNING id;";
                 console.log("running query: " + query);
                 client.query(query, function(err, result) {
                     //call `done()` to release the client back to the pool 
@@ -63,17 +62,13 @@ poll.post = function(response, body) {
                     }
                     
                     response.writeHead("200", { "content-type": "application/json"});
-                    // return new poll with id (select)
-                    /*var newPoll = {
-                        question: body.question,
-                        yes: 0,
-                        no: 0
-                    };
                     
-                    response.write(JSON.stringify(newPoll));*/
-                    
-                    
-                    response.end();
+                    var newId = result.rows[0].id;
+                    var newPoll = poll.createNewPollDoc(newId, body.question, body.userId);
+                    response.write(newPoll);
+                    poll.insertNewPollDoc(newId, newPoll, client, done, function() {
+                        response.end();   
+                    });
                 });
             } else {
                 response.writeHead("400", { "content-type": "application/json"});
@@ -134,8 +129,19 @@ poll.delete = function(response, body) {
                               return console.error('error running query', err);
                             }
                             
-                            response.writeHead("200", { "content-type": "application/json"});
-                            response.end();
+                            var query = "DELETE from pollDoc where id = " + body.id + ";";
+                            console.log("running query: " + query);
+                            client.query(query, function(err, result) {
+                                //call `done()` to release the client back to the pool 
+                                done();
+                                
+                                if(err) {
+                                  return console.error('error running query', err);
+                                }
+                                
+                                response.writeHead("200", { "content-type": "application/json"});
+                                response.end();
+                            });
                         });
                     });
                 });
@@ -152,6 +158,68 @@ poll.delete = function(response, body) {
         response.write(json);
         response.end();
     }
+};
+
+poll.createNewPollDoc = function(id, question, ownerId) {
+    var pollDoc = {
+        id: id,
+        question: question,
+        ownerId: ownerId
+    }
+    
+    return JSON.stringify(pollDoc);
+};
+
+poll.insertNewPollDoc = function(id, jsonPoll, client, done, callback) {
+    var query = "INSERT INTO pollDoc (id, json) values(" + id + ",'" + jsonPoll.replace(/'/g, "''") + "');";
+    console.log("running query: " + query);
+    client.query(query, function(err, result) {
+        //call `done()` to release the client back to the pool 
+        done();
+        
+        if(err) {
+          return console.error('error running query', err);
+        }
+        
+        callback();
+    });
+};
+
+poll.updatePollDoc = function(id, jsonPoll, client, done, callback) {
+    var query = "UPDATE pollDoc SET json = '" + jsonPoll.replace(/'/g, "''") + "' where id = " + id + ";";
+    console.log("running query: " + query);
+    client.query(query, function(err, result) {
+        //call `done()` to release the client back to the pool 
+        done();
+        
+        if(err) {
+          return console.error('error running query', err);
+        }
+        
+        callback();
+    });
+};
+
+poll.getPollDoc = function(id, client, done, callback) {
+    var query = "select json from pollDoc where id = " + id + ";";
+    console.log("running query: " + query);
+    client.query(query, function(err, result) {
+        //call `done()` to release the client back to the pool 
+        done();
+        
+        if(err) {
+          return console.error('error running query', err);
+        }
+        
+        var pollDoc;
+        
+        if (result.rowCount > 0) {
+            var json = result.rows[0].json;
+            pollDoc = JSON.parse(json);
+        }
+        
+        callback(pollDoc);
+    });
 };
 
 module.exports = poll;

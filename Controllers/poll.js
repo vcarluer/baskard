@@ -41,7 +41,8 @@ poll.render = function(polls) {
     while (pollListDom.hasChildNodes()) {
         pollListDom.removeChild(pollListDom.lastChild);
     }
-    polls.forEach(function(poll) {
+    polls.forEach(function(pollDoc) {
+        var poll = JSON.parse(pollDoc.json)
         var pollDom = document.createElement("div");
         pollDom.className = "poll";
         var pollLink = document.createElement("a");
@@ -57,7 +58,7 @@ poll.render = function(polls) {
         pollLink.appendChild(question);
         question.innerHTML = poll.question;
         
-        if (userAccount.id === poll.ownerid) {
+        if (userAccount.id == poll.ownerId) {
             var del = document.createElement("button");
             pollDom.appendChild(del);
             del.innerHTML = "del";
@@ -74,13 +75,14 @@ poll.render = function(polls) {
         plus.appendChild(plusLink);
         var plusText = "";
 
-        if (poll.useryes) {
+        // if contains owner
+        if (userAccount && poll.yesers && poll.yesers[userAccount.id]) {
             plusText += "(<i class='fa fa-thumbs-o-up'></i>)";
             plusLink.onclick = function () {
                 self.delVote({ pollId: poll.id });  
             };
             
-            plusText += " " + poll.yes;
+            plusText += " " + poll.yesCount;
         } else {
             plusText += "<i class='fa fa-thumbs-o-up'></i>";
             plusLink.onclick = function () {
@@ -97,13 +99,13 @@ poll.render = function(polls) {
         moinsLink.setAttribute("href", "#");
         moins.appendChild(moinsLink);
         var moinsText = "";
-        if (poll.userno) {
+        if (userAccount && poll.noers && poll.noers[userAccount.id]) {
             moinsText += "(<i class='fa fa-thumbs-o-down'></i>)";
             moinsLink.onclick = function () {
                 self.delVote({ pollId: poll.id});  
             };
             
-            moinsText += " " + poll.no;
+            moinsText += " " + poll.noCount;
         } else {
             moinsText += "<i class='fa fa-thumbs-o-down'></i>";
             moinsLink.onclick = function () {

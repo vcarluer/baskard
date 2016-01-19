@@ -96,7 +96,7 @@ account.render = function() {
     var account = this.get(), loggedIn = account.secret, self = this;
     document.getElementById("changeLogin").style.display = "none";
     if (loggedIn) {
-        document.getElementById("loginAvatar").setAttribute("src", account.avatar);
+        document.getElementById("loginAvatar").setAttribute("src", "http://www.gravatar.com/avatar/" + account.avatar + ".jpg&s=80&mm");
         document.getElementById("loginregister").style.display = "none";
         document.getElementById("loggedIn").style.display = "block";
         document.getElementById("loggedIn").innerHTML = "@" + account.login + "<i class='fa fa-pencil'></i>";

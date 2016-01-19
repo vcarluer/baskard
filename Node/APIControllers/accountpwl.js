@@ -166,8 +166,8 @@ account.post = function(response, body, request) {
                 
                 if (result.rowCount === 0) {
                     // Create email account if does not exist
-                    account.createAvatar(body.email, function(avatar) {
-                        query = "INSERT into account (login, email, avatar) values('" + login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "','" + avatar + "');";
+                    account.getGravatarHash(body.email, function(hash) {
+                        query = "INSERT into account (login, email, avatar) values('" + login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "','" + hash + "') RETURNING id;";
                         console.log("running query: " + query);
                         client.query(query, function(err, result) {
                             //call `done()` to release the client back to the pool 
@@ -177,18 +177,8 @@ account.post = function(response, body, request) {
                               return console.error('error running query', err);
                             }
                             
-                            query = "select id from account where email = '" + body.email.replace(/'/g, "''") + "';";
-                            console.log("running query: " + query);
-                            client.query(query, function(err, result) {
-                                //call `done()` to release the client back to the pool 
-                                done();
-                                
-                                if(err) {
-                                  return console.error('error running query', err);
-                                }
-                            
-                                self.sendLoginToken(result.rows[0].id, body.email, login, true, response, client, done);
-                            });
+                            var newId = result.rows[0].id;
+                            self.sendLoginToken(newId, body.email, login, true, response, client, done);
                         });
                     });
                 } else {
@@ -378,25 +368,14 @@ function Uint8ArrayConcat(first, second)
     return result;
 }
 
-account.createAvatar = function(email, callback) {
-      var avatar = getGravatarImage(email, ".jpg?s=200&d=mm");
-      console.log("Gravatar image " + avatar);
-      callback(avatar);
-};
-
 /**
  * Gets a gravatar image for the specified email address and optional arguments.
  * @param  {String} email The email address to get a profile image from Gravatar.
- * @param  {String} args  Arguments to append to the end of the Gravatar URL. Optional, defaults to "".
- * @return {String}       A fully qualified HREF for a gravatar image.
+ * @return {String}       The gravatar hash
  */
-function getGravatarImage(email, args) {
-    args = args || "";
-    var BASE_URL = "//www.gravatar.com/avatar/";
-    // IE: //www.gravatar.com/avatar/e04f525530dafcf4f5bda069d6d59790.jpg?s=200
-    return (BASE_URL + md5(email) + args).trim();
+account.getGravatarHash = function(email, callback) {
+    callback(md5(email).trim());
 }
-
 
 /**
  * MD5 hashes the specified string.

@@ -58,7 +58,7 @@ api.route = function(request, response) {
                         if (controllerName === "poll" && method === "get") {
                             // Authorized fallback in anonymous to list poll
                             bodyObject.userId = -1;
-                            controller[method](response, bodyObject, request);
+                            controller[method](response, bodyObject, request, resourceId);
                         } else {
                             response.writeHead("401", { "content-type": "application/json"});
                             return response.end();    

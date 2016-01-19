@@ -1,5 +1,5 @@
 var pg = require('pg');
-
+var poll = require('./poll.js');
 var connectionString = "postgres://fvtjauwobkigbf:8reHZ_30Uj-6js4s1nY66ktN0l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/d6t3vp05h61n8r?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 var vote = function() {};
 vote.post = function(response, body) {
@@ -104,10 +104,7 @@ vote.delete = function(response, body) {
 function updatePollCounters(response, body, client, done) {
     // update poll counters
     var query;
-    query = "update poll set " + 
-            "yes = (select count(*) from vote where yes = true and pollId = " + body.pollId + ")," +
-            "no =  (select count(*) from vote where no = true and pollId = " + body.pollId + ") " +
-            "where id = " + body.pollId + ";";
+    query = "select userId from vote where yes = true and pollId = " + body.pollId + ";";
     
     console.log("running query: " + query);
     client.query(query, function(err, result) {
@@ -118,9 +115,9 @@ function updatePollCounters(response, body, client, done) {
           return console.error('error running query', err);
         }
         
-        var query = 'SELECT poll.id as id, poll.question as question, coalesce(poll.yes, 0) as yes, coalesce(poll.no, 0) as no, coalesce(vote.yes, false) as userYes, coalesce(vote.no, false) as userNo FROM poll ' +
-                    'LEFT OUTER JOIN vote on vote.pollId = poll.id and vote.userId = ' + body.userId + ' ' +
-                    'where poll.id = ' + body.pollId;
+        var yes = result.rows;
+        query = "select userId from vote where no = true and pollId = " + body.pollId + ";";
+        console.log("running query: " + query);
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();
@@ -129,17 +126,35 @@ function updatePollCounters(response, body, client, done) {
               return console.error('error running query', err);
             }
             
-            var poll;
-            if (result.rowCount === 1) {
-                poll = result.rows[0];
-            }
-            response.writeHead("200", { "content-type": "application/json"});
+            var no = result.rows;
             
-            var json = JSON.stringify(poll);
-            response.write(json);
-            return response.end();
+            poll.getPollDoc(body.pollId, client, done, function(pollDoc) {
+                if (pollDoc) {
+                    pollDoc.yesers = userIdToParseArray(yes);
+                    pollDoc.noers = userIdToParseArray(no);
+                    pollDoc.yesCount = yes.length;
+                    pollDoc.noCount = no.length;
+                }
+                
+                var json = JSON.stringify(pollDoc);
+                poll.updatePollDoc(body.pollId, json, client, done, function() {
+                    response.writeHead("200", { "content-type": "application/json"});
+                
+                    response.write(json);
+                    return response.end();    
+                });
+            });
         });
     });
+}
+
+function userIdToParseArray(ids) {
+    var parsed = {};
+    for (var i = 0; i < ids.length; i++) {
+        parsed[ids[i].userid] = true;
+    }
+    
+    return parsed;
 }
 
 module.exports = vote;
