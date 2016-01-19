@@ -17,6 +17,10 @@ button {
     border-radius:3px;
 }
 
+button:hover {
+     cursor:pointer;
+}
+
 textarea {
     resize:none;
     margin:0px;
@@ -32,6 +36,10 @@ textarea:hover {
 #loggedIn {
     display: none;
     width:100%;
+}
+
+#loggedIn:hover {
+     cursor:pointer;
 }
 
 #changeLogin {
@@ -67,6 +75,10 @@ textarea:hover {
 .poll .question {
     display: inline-block;
     font-size: 26px;
+}
+
+.poll .question:hover {
+     cursor:pointer;
 }
 
 .poll .ownerInfo {
@@ -113,6 +125,10 @@ textarea:hover {
 .poll .vote {
     font-size: 36px;
     margin: 1px;
+}
+
+.poll .vote:hover {
+     cursor:pointer;
 }
 
 .poll a {

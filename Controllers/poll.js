@@ -53,7 +53,6 @@ poll.render = function(polls) {
         pollDom.appendChild(ownerImage);
         
         var pollLink = document.createElement("a");
-        pollLink.setAttribute("href", "#");
         pollLink.onclick = function() {
             window.location.href = "/poll/" + poll.id;
         };
@@ -74,13 +73,6 @@ poll.render = function(polls) {
         ownerActions.className = "ownerActions";
         pollDom.appendChild(ownerActions);
         if (userAccount.id == poll.ownerId) {
-            var openClose = document.createElement("button");
-            ownerActions.appendChild(openClose);
-            openClose.innerHTML = "Close";
-            openClose.onclick = function () {
-                
-            };    
-            
             var del = document.createElement("button");
             ownerActions.appendChild(del);
             del.innerHTML = "del";
@@ -88,6 +80,14 @@ poll.render = function(polls) {
                 self.delete(poll.id);
             };    
         }
+        
+        
+        var share = document.createElement("button");
+        ownerActions.appendChild(share);
+        share.innerHTML = "share";
+        share.onclick = function () {
+            document.getElementById("messages").innerHTML = "Copy the poll link: https://" + window.location.hostname + "/poll/" + poll.id;
+        };    
         
         var votesDiv = document.createElement("div");
         votesDiv.className = "votes";
@@ -103,7 +103,6 @@ poll.render = function(polls) {
         plus.className = "voteYes vote";
         votesDiv.appendChild(plus);
         var plusLink = document.createElement("a");
-        plusLink.setAttribute("href", "#");
         plus.appendChild(plusLink);
         
         var yesCount = document.createElement("div");
@@ -131,7 +130,6 @@ poll.render = function(polls) {
         moins.className = "voteNo vote";
         votesDiv.appendChild(moins);
         var moinsLink = document.createElement("a");
-        moinsLink.setAttribute("href", "#");
         moins.appendChild(moinsLink);
         
         var noCount = document.createElement("div");
@@ -184,7 +182,7 @@ poll.renderVoter = function(voters, poll, votersDom) {
             floating.style.display = "block";
             floating.style.left = e.pageX + "px";
             floating.style.top = e.pageY + "px";
-            floating.innerHTML = voter.login;
+            floating.innerHTML = "@" + voter.login;
         };
         voterDom.onmouseleave = function(e) {
             floating.style.display = "none";
@@ -214,6 +212,7 @@ poll.ask = function(question) {
            self.refresh();
        },
        error: function(resp) {
+           document.getElementById("messages").innerHTML = "You must be logged";
            console.log(resp);
        }
    });
