@@ -61,13 +61,27 @@ poll.post = function(response, body) {
                       return console.error('error running query', err);
                     }
                     
-                    response.writeHead("200", { "content-type": "application/json"});
-                    
                     var newId = result.rows[0].id;
-                    var newPoll = poll.createNewPollDoc(newId, body.question, body.userId);
-                    response.write(newPoll);
-                    poll.insertNewPollDoc(newId, newPoll, client, done, function() {
-                        response.end();   
+                    
+                    var query = "select login, avatar from account where id = " + body.userId + ";";
+                    console.log("running query: " + query);
+                    client.query(query, function(err, result) {
+                        //call `done()` to release the client back to the pool 
+                        done();
+                        
+                        if(err) {
+                          return console.error('error running query', err);
+                        }
+                        
+                        response.writeHead("200", { "content-type": "application/json"});
+                        
+                        var avatar = result.rows[0].avatar;
+                        var login = result.rows[0].login;
+                        var newPoll = poll.createNewPollDoc(newId, body.question, body.userId, login, avatar);
+                        response.write(newPoll);
+                        poll.insertNewPollDoc(newId, newPoll, client, done, function() {
+                            response.end();   
+                        });
                     });
                 });
             } else {
@@ -160,11 +174,13 @@ poll.delete = function(response, body) {
     }
 };
 
-poll.createNewPollDoc = function(id, question, ownerId) {
+poll.createNewPollDoc = function(id, question, ownerId, login, avatar) {
     var pollDoc = {
         id: id,
         question: question,
-        ownerId: ownerId
+        ownerId: ownerId,
+        login: login,
+        avatar: avatar
     }
     
     return JSON.stringify(pollDoc);

@@ -104,7 +104,8 @@ vote.delete = function(response, body) {
 function updatePollCounters(response, body, client, done) {
     // update poll counters
     var query;
-    query = "select userId from vote where yes = true and pollId = " + body.pollId + ";";
+    query = "select vote.userId as userId, account.avatar as avatar, account.login as login from vote " +
+            "LEFT OUTER JOIN account on vote.userId = account.id where vote.yes = true and vote.pollId = " + body.pollId + ";";
     
     console.log("running query: " + query);
     client.query(query, function(err, result) {
@@ -116,7 +117,8 @@ function updatePollCounters(response, body, client, done) {
         }
         
         var yes = result.rows;
-        query = "select userId from vote where no = true and pollId = " + body.pollId + ";";
+        query = "select vote.userId as userId, account.avatar as avatar, account.login as login from vote " +
+                "LEFT OUTER JOIN account on vote.userId = account.id where vote.no = true and vote.pollId = " + body.pollId + ";";
         console.log("running query: " + query);
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
@@ -130,8 +132,8 @@ function updatePollCounters(response, body, client, done) {
             
             poll.getPollDoc(body.pollId, client, done, function(pollDoc) {
                 if (pollDoc) {
-                    pollDoc.yesers = userIdToParseArray(yes);
-                    pollDoc.noers = userIdToParseArray(no);
+                    pollDoc.yesers = userIdToHashMap(yes);
+                    pollDoc.noers = userIdToHashMap(no);
                     pollDoc.yesCount = yes.length;
                     pollDoc.noCount = no.length;
                 }
@@ -148,10 +150,15 @@ function updatePollCounters(response, body, client, done) {
     });
 }
 
-function userIdToParseArray(ids) {
+function userIdToHashMap(ids) {
     var parsed = {};
     for (var i = 0; i < ids.length; i++) {
-        parsed[ids[i].userid] = true;
+        parsed[ids[i].userid] = 
+            {
+                id: ids[i].userId,
+                avatar: ids[i].avatar,
+                login: ids[i].login
+            };
     }
     
     return parsed;
