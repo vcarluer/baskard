@@ -6,6 +6,7 @@ poll.bind = function() {
     var self = this;
     document.getElementById("askSubmit").onclick = function() {
         var question = document.getElementById("ask").value;
+       
         if (question) {
             self.ask(question);
         }
@@ -45,6 +46,12 @@ poll.render = function(polls) {
         var poll = JSON.parse(pollDoc.json)
         var pollDom = document.createElement("div");
         pollDom.className = "poll";
+        
+        var ownerImage = document.createElement("img");
+        ownerImage.className = "ownerImage"
+        ownerImage.src = account.getAvatar(poll.avatar, 40);
+        pollDom.appendChild(ownerImage);
+        
         var pollLink = document.createElement("a");
         pollLink.setAttribute("href", "#");
         pollLink.onclick = function() {
@@ -58,18 +65,37 @@ poll.render = function(polls) {
         pollLink.appendChild(question);
         question.innerHTML = poll.question;
         
+        var ownerInfo = document.createElement("div");
+        ownerInfo.className = "ownerInfo";
+        ownerInfo.innerHTML = "@" + poll.login;
+        pollDom.appendChild(ownerInfo);
+        
+        var ownerActions = document.createElement("div");
+        ownerActions.className = "ownerActions";
+        pollDom.appendChild(ownerActions);
         if (userAccount.id == poll.ownerId) {
+            var openClose = document.createElement("button");
+            ownerActions.appendChild(openClose);
+            openClose.innerHTML = "Close";
+            openClose.onclick = function () {
+                
+            };    
+            
             var del = document.createElement("button");
-            pollDom.appendChild(del);
+            ownerActions.appendChild(del);
             del.innerHTML = "del";
             del.onclick = function () {
                 self.delete(poll.id);
             };    
         }
         
+        var votesDiv = document.createElement("div");
+        votesDiv.className = "votes";
+        pollDom.appendChild(votesDiv);
+        
         var plus = document.createElement("div");
-        plus.className = "choice";
-        pollDom.appendChild(plus);
+        plus.className = "voteYes vote";
+        votesDiv.appendChild(plus);
         var plusLink = document.createElement("a");
         plusLink.setAttribute("href", "#");
         plus.appendChild(plusLink);
@@ -77,7 +103,7 @@ poll.render = function(polls) {
 
         // if contains owner
         if (userAccount && poll.yesers && poll.yesers[userAccount.id]) {
-            plusText += "(<i class='fa fa-thumbs-o-up'></i>)";
+            plusText += "[<i class='fa fa-thumbs-o-up'></i>]";
             plusLink.onclick = function () {
                 self.delVote({ pollId: poll.id });  
             };
@@ -93,14 +119,14 @@ poll.render = function(polls) {
         plusLink.innerHTML = plusText;
         
         var moins = document.createElement("div");
-        moins.className = "choice";
-        pollDom.appendChild(moins);
+        moins.className = "voteNo vote";
+        votesDiv.appendChild(moins);
         var moinsLink = document.createElement("a");
         moinsLink.setAttribute("href", "#");
         moins.appendChild(moinsLink);
         var moinsText = "";
         if (userAccount && poll.noers && poll.noers[userAccount.id]) {
-            moinsText += "(<i class='fa fa-thumbs-o-down'></i>)";
+            moinsText += "[<i class='fa fa-thumbs-o-down'></i>]";
             moinsLink.onclick = function () {
                 self.delVote({ pollId: poll.id});  
             };
@@ -114,12 +140,31 @@ poll.render = function(polls) {
         }
         moinsLink.innerHTML = moinsText;
         
+        self.renderVoters(poll, pollDom);
+        
+        
         pollListDom.appendChild(pollDom);
     });
 };
 
-poll.onVoteClick = function() {
-      
+poll.renderVoters = function(poll, pollDom) {
+    var votersDom = document.createElement("div");
+    votersDom.className = "voters";
+    pollDom.appendChild(votersDom);
+    this.renderVoter(poll.yesers, poll, votersDom);
+    this.renderVoter(poll.noers, poll, votersDom);
+};
+
+poll.renderVoter = function(voters, poll, votersDom) {
+    var key, voter;
+    // voters is an object / parsed array
+    for(key in voters) {
+        voter = voters[key];
+        var voterDom = document.createElement("img");
+        voterDom.className = "voterImage"
+        voterDom.src = account.getAvatar(voter.avatar, 20);
+        votersDom.appendChild(voterDom);
+    }
 };
 
 poll.ask = function(question) {
@@ -134,6 +179,7 @@ poll.ask = function(question) {
        },
        success: function (resp) {
            console.log("question asked! " + resp);
+            document.getElementById("ask").value ="";
            self.refresh();
        },
        error: function(resp) {

@@ -10,11 +10,11 @@ poll.get = function(response, body, request, id) {
             return console.error('error fetching client from pool', err);
         }
     
-        var query = 'SELECT json from pollDoc';
+        var query = "SELECT json from pollDoc ";
         if (id !== null) {
             query += " where id = " + id;
         }
-        query += ' LIMIT 100;';
+        query += " order by id LIMIT 100;";
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();

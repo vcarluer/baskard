@@ -16,11 +16,82 @@ button {
 
 .poll {
     margin: 10px;
+    padding: 10px;
     border-style: dotted;
     border-width: 1px;
     border-color: black;
 }
 
-#loginAvatar {
+.poll .ownerImage {
     width: 50px;
+    display: inline-block;
+}
+
+.poll .question {
+    display: inline-block;
+    font-size: 38px;
+}
+
+.poll .ownerInfo {
+    display: inline-block;
+    font-size: 18px;
+    font-style: italic;
+}
+
+.poll .ownerActions {
+    display: inline-block;
+    float: right;
+}
+
+.poll .voterImage {
+    width: 30px;
+    float:right;
+}
+
+#loginAvatar {
+    width: 60px;
+}
+
+#ask {
+    width: 75%;
+    display: inline-block;
+}
+
+#askSubmit {
+    display: inline-block;
+}
+
+.poll .vote {
+    font-size: 48px;
+    margin: 15px;
+}
+
+.poll a {
+    text-decoration: none;
+    color: black;
+}
+
+.poll a:visited {
+    color: black;
+}
+
+.poll .voteYes {
+    display: inline-block;
+    float: right;
+}
+
+.poll .voteNo {
+    display: inline-block;
+    float: left;
+}
+
+.poll .votes {
+    width: 100%;
+    overflow: auto;
+}
+
+.poll  .voters {
+    width: 100%;
+    overflow: auto;
+    height: 40px;
 }

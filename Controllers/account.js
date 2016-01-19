@@ -96,9 +96,9 @@ account.render = function() {
     var account = this.get(), loggedIn = account.secret, self = this;
     document.getElementById("changeLogin").style.display = "none";
     if (loggedIn) {
-        document.getElementById("loginAvatar").setAttribute("src", "http://www.gravatar.com/avatar/" + account.avatar + ".jpg&s=80&mm");
+        document.getElementById("loginAvatar").setAttribute("src", this.getAvatar(account.avatar, 80));
         document.getElementById("loginregister").style.display = "none";
-        document.getElementById("loggedIn").style.display = "block";
+        document.getElementById("loggedIn").style.display = "inline-block";
         document.getElementById("loggedIn").innerHTML = "@" + account.login + "<i class='fa fa-pencil'></i>";
         document.getElementById("loggedIn").onclick = function() { self.startChangeLogin(account.login); };
         
@@ -107,22 +107,30 @@ account.render = function() {
         disconnectButton.onclick = function () { self.disconnect(); };
         document.getElementById("loggedIn").appendChild(disconnectButton);
     } else {
-        document.getElementById("loginregister").style.display = "block";
+        document.getElementById("loginregister").style.display = "inline-block";
         document.getElementById("loggedIn").style.display = "none";
     }
+};
+
+account.getAvatar = function(hash, size) {
+    if (!size) {
+        size = 80;
+    }
+    
+    return "https://www.gravatar.com/avatar/" + hash + ".jpg&s=" + size + "&mm"
 };
 
 account.startChangeLogin = function(login) {
     var self = this;
     document.getElementById("loggedIn").style.display = "none";
-    document.getElementById("changeLogin").style.display = "block";
+    document.getElementById("changeLogin").style.display = "inline-block";
     document.getElementById("newLogin").value = login;
     document.getElementById("changeLoginButton").onclick = function() {
           self.changeLogin(document.getElementById("newLogin").value);
     };
     
     document.getElementById("cancelLoginButton").onclick = function() {
-        document.getElementById("loggedIn").style.display = "block";
+        document.getElementById("loggedIn").style.display = "inline-block";
         document.getElementById("changeLogin").style.display = "none";
     };
 };
