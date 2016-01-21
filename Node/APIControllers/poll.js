@@ -27,11 +27,24 @@ poll.get = function(response, body, request, id) {
             
             response.writeHead("200", { "content-type": "application/json"});
             
-            var json = JSON.stringify(polls);
-            response.write(json);
-            response.end();
+            var pollArray = [];
+            var itemsProcessed = 0;
+            polls.forEach(function(pollItem) {
+                var parsedPoll = JSON.parse(pollItem.json);
+                pollArray.push(parsedPoll);
+                itemsProcessed++;
+                if (itemsProcessed === polls.length) {
+                    poll.endGet(pollArray, response);
+                }
+            });
         });
     });
+};
+
+poll.endGet = function(polls, response) {
+    var json = JSON.stringify(polls);
+    response.write(json);
+    response.end();
 };
 
 poll.post = function(response, body) {

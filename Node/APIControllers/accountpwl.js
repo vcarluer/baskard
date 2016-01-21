@@ -104,7 +104,16 @@ account.patch = function(response, body, request) {
                 return response.end();
             }
             
-            var query = "UPDATE account set login = '" + body.login.replace(/'/g, "''") + "' where id = " + body.userId + ";";
+            if (body.login.charAt(0) !== "@" || body.login.length <= 1) {
+                response.writeHead("403", { "content-type": "application/json"});
+                json = JSON.stringify({ errorCode: 1, error: "login must start with @ and be longer than 1." });
+                response.write(json);
+                return response.end();
+            }
+            
+            var login = body.login;
+            
+            var query = "select 1 from account where lower(login) = '" + login.toLowerCase().replace(/'/g, "''") + "';";
             console.log("running query: " + query);
             client.query(query, function(err, result) {
                 //call `done()` to release the client back to the pool 
@@ -114,10 +123,28 @@ account.patch = function(response, body, request) {
                   return console.error('error running query', err);
                 }
                 
-                response.writeHead("200", { "content-type": "application/json"});
-                json = JSON.stringify({ message: "login updated" });
-                response.write(json);
-                return response.end();
+                if (result.rowCount > 0) {
+                    response.writeHead("403", { "content-type": "application/json"});
+                    json = JSON.stringify({ errorCode: 20, error: "login is already used." });
+                    response.write(json);
+                    return response.end();
+                }
+            
+                var query = "UPDATE account set login = '" + login.replace(/'/g, "''") + "' where id = " + body.userId + ";";
+                console.log("running query: " + query);
+                client.query(query, function(err, result) {
+                    //call `done()` to release the client back to the pool 
+                    done();
+                    
+                    if(err) {
+                      return console.error('error running query', err);
+                    }
+                    
+                    response.writeHead("200", { "content-type": "application/json"});
+                    json = JSON.stringify({ message: "login updated" });
+                    response.write(json);
+                    return response.end();
+                });
             });
         });
     }
@@ -153,7 +180,7 @@ account.post = function(response, body, request) {
                 return response.end();
             }
             
-            var login   = body.email.substring(0, body.email.lastIndexOf("@"));
+            var login   = "@" + body.email.substring(0, body.email.lastIndexOf("@"));
             var query = "select id, login from account where email = '" + body.email.replace(/'/g, "''") + "';";
             console.log("running query: " + query);
             client.query(query, function(err, result) {
@@ -167,7 +194,8 @@ account.post = function(response, body, request) {
                 if (result.rowCount === 0) {
                     // Create email account if does not exist
                     account.getGravatarHash(body.email, function(hash) {
-                        query = "INSERT into account (login, email, avatar) values('" + login.replace(/'/g, "''") + "','" + body.email.replace(/'/g, "''") + "','" + hash + "') RETURNING id;";
+                        
+                        query = "SELECT 1 from account where lower(login) = '" + login.toLowerCase().replace(/'/g, "''") + "';";
                         console.log("running query: " + query);
                         client.query(query, function(err, result) {
                             //call `done()` to release the client back to the pool 
@@ -177,8 +205,16 @@ account.post = function(response, body, request) {
                               return console.error('error running query', err);
                             }
                             
-                            var newId = result.rows[0].id;
-                            self.sendLoginToken(newId, body.email, login, true, response, client, done);
+                            if (result.rowCount > 0) {
+                                crypto.randomBytes(3, function(ex, buf) {
+                                    console.log(ex);
+                                    var token = buf.toString('hex');
+                                    login = login + "-" + token;
+                                    self.createNewAccount(login, body.email, hash, response, client, done);
+                                });
+                            } else {
+                                self.createNewAccount(login, body.email, hash, response, client, done);
+                            }
                         });
                     });
                 } else {
@@ -192,6 +228,23 @@ account.post = function(response, body, request) {
         response.write(json);
         return response.end();
     }
+};
+
+account.createNewAccount = function(login, email, hash, response, client, done) {
+    var self = this;
+    var query = "INSERT into account (login, email, avatar) values('" + login.replace(/'/g, "''") + "','" + email.replace(/'/g, "''") + "','" + hash + "') RETURNING id;";
+    console.log("running query: " + query);
+    client.query(query, function(err, result) {
+        //call `done()` to release the client back to the pool 
+        done();
+        
+        if(err) {
+          return console.error('error running query', err);
+        }
+        
+        var newId = result.rows[0].id;
+        self.sendLoginToken(newId, email, login, true, response, client, done);
+    });
 };
 
 account.sendLoginToken = function(accountId, email, login, newAccount, response, client, done) {

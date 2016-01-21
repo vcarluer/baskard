@@ -42,8 +42,7 @@ poll.render = function(polls) {
     while (pollListDom.hasChildNodes()) {
         pollListDom.removeChild(pollListDom.lastChild);
     }
-    polls.forEach(function(pollDoc) {
-        var poll = JSON.parse(pollDoc.json)
+    polls.forEach(function(poll) {
         var pollDom = document.createElement("div");
         pollDom.className = "poll";
         
@@ -66,7 +65,7 @@ poll.render = function(polls) {
         
         var ownerInfo = document.createElement("div");
         ownerInfo.className = "ownerInfo";
-        ownerInfo.innerHTML = "@" + poll.login;
+        ownerInfo.innerHTML = poll.login;
         pollDom.appendChild(ownerInfo);
         
         var ownerActions = document.createElement("div");

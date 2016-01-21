@@ -99,7 +99,7 @@ account.render = function() {
         document.getElementById("loginAvatar").setAttribute("src", this.getAvatar(account.avatar, 80));
         document.getElementById("loginregister").style.display = "none";
         document.getElementById("loggedIn").style.display = "inline-block";
-        document.getElementById("loggedIn").innerHTML = "@" + account.login + "<i class='fa fa-pencil'></i>";
+        document.getElementById("loggedIn").innerHTML = account.login + "<i class='fa fa-pencil'></i>";
         document.getElementById("loggedIn").onclick = function() { self.startChangeLogin(account.login); };
         
         var disconnectButton = document.createElement("button");
@@ -125,9 +125,9 @@ account.startChangeLogin = function(login) {
     var self = this;
     document.getElementById("loggedIn").style.display = "none";
     document.getElementById("changeLogin").style.display = "inline-block";
-    document.getElementById("newLogin").value = login;
+    document.getElementById("newLogin").value = login.slice(1);
     document.getElementById("changeLoginButton").onclick = function() {
-          self.changeLogin(document.getElementById("newLogin").value);
+          self.changeLogin("@" + document.getElementById("newLogin").value);
     };
     
     document.getElementById("cancelLoginButton").onclick = function() {
