@@ -155,6 +155,18 @@ poll.render = function(polls) {
         
         self.renderVoters(poll, pollDom);
         
+        if (poll.timestamp) {
+            var timestamp = document.createElement("div");
+            pollDom.appendChild(timestamp);
+            var time = new Date(poll.timestamp);
+            var day = time.getDate();
+            var month = time.getMonth() + 1;
+            var year = time.getFullYear();
+            var seconds = time.getSeconds();
+            var minutes = time.getMinutes();
+            var hour = time.getHours();
+            timestamp.innerHTML = month + "/" + day + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
+        }
         
         pollListDom.appendChild(pollDom);
     });

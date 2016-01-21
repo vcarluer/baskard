@@ -51,7 +51,8 @@ poll.post = function(response, body) {
             }
             
             if (body.question.length <= 140) {
-                var query = "INSERT into poll (question, ownerid) values ('" + body.question.replace(/'/g, "''") + "'," + body.userId + ") RETURNING id;";
+                var timestamp = Date.now();
+                var query = "INSERT into poll (question, ownerid, timestamp) values ('" + body.question.replace(/'/g, "''") + "'," + body.userId + "," + timestamp +") RETURNING id;";
                 console.log("running query: " + query);
                 client.query(query, function(err, result) {
                     //call `done()` to release the client back to the pool 
@@ -180,7 +181,8 @@ poll.createNewPollDoc = function(id, question, ownerId, login, avatar) {
         question: question,
         ownerId: ownerId,
         login: login,
-        avatar: avatar
+        avatar: avatar,
+        timestamp: Date.now()
     }
     
     return JSON.stringify(pollDoc);
