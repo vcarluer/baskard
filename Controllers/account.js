@@ -24,6 +24,7 @@ account.login = function(token) {
         error: function(resp) {
            localStorage.user = "";
            console.log(resp);
+           setMessage(resp);
         }
         });    
     }
@@ -40,11 +41,13 @@ account.connect = function() {
            method: "POST",
            success: function (resp) {
                console.log("Mail sent");
-               // self.connectSuccess(resp);
+               document.getElementById("messages").innerHTML = "Connection mail sent";
+               setMessage(resp);
            },
            error: function(resp) {
                localStorage.user = "";
                console.log(resp);
+               setMessage(resp);
            }
         });        
     }
@@ -149,19 +152,28 @@ account.changeLogin = function(newLogin) {
                },
                success: function (resp) {
                     console.log("login changed " + resp);
+                    document.getElementById("messages").innerHTML = "Login modified";
                     
-                    account.login = newLogin;
+                    account.login = newLogin; 
                     localStorage.user = JSON.stringify(account);
                     self.render();
                },
                error: function(resp) {
-                   console.log(resp);
-                   self.render();
+                    console.log(resp);
+                    setMessage(resp);
+                    self.render();
                }    
             });    
         }
     }
 };
+
+function setMessage(resp) {
+    if (resp.response) {
+        var respObj = JSON.parse(resp.response);
+        document.getElementById("messages").innerHTML =respObj.error;
+    }
+}
 
 function getParameterByName(name) {
 	name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");

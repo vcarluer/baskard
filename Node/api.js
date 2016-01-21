@@ -48,7 +48,9 @@ api.route = function(request, response) {
                         controllers.accountpwl.getIdBySecret(request, request.headers["x-authentication"], function(id) {
                             bodyObject.userId = id;    
                             if (!bodyObject.userId) {
-                               response.writeHead("401", { "content-type": "application/json"});
+                                response.writeHead("401", { "content-type": "application/json"});
+                                var json = JSON.stringify({ errorCode: 66, error: "You must be logged." });
+                                response.write(json);
                                 return response.end();
                             }
                             
@@ -61,6 +63,8 @@ api.route = function(request, response) {
                             controller[method](response, bodyObject, request, resourceId);
                         } else {
                             response.writeHead("401", { "content-type": "application/json"});
+                            var json = JSON.stringify({ errorCode: 66, error: "You must be logged." });
+                            response.write(json);
                             return response.end();    
                         }
                     }

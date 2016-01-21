@@ -30,6 +30,7 @@ poll.refresh = function(pollId) {
        },
        error: function(resp) {
            console.log(resp);
+           setMessage(resp);
        }
    });
 };
@@ -216,8 +217,8 @@ poll.ask = function(question) {
            self.refresh();
        },
        error: function(resp) {
-           document.getElementById("messages").innerHTML = "You must be logged";
            console.log(resp);
+           setMessage(resp);
        }
    });
 };
@@ -238,6 +239,7 @@ poll.delete = function(id) {
        },
        error: function(resp) {
            console.log(resp);
+           setMessage(resp);
        }
    });
 };
@@ -257,6 +259,7 @@ poll.vote = function(data) {
        },
        error: function(resp) {
            console.log(resp);
+           setMessage(resp);
        }
    });
 };
@@ -277,6 +280,7 @@ poll.delVote = function(data) {
        },
        error: function(resp) {
            console.log(resp);
+           setMessage(resp);
        }
    });
 };
