@@ -132,11 +132,6 @@ poll.render = function(polls) {
         var moinsLink = document.createElement("a");
         moins.appendChild(moinsLink);
         
-        var noCount = document.createElement("div");
-        noCount.className = "count";
-        moinsLink.appendChild(noCount);
-        noCount.innerHTML = hasVoted ? poll.noCount : "";
-        
         var noButton = document.createElement("i");
         noButton.className = "noButton fa fa-thumbs-o-down";
         moinsLink.appendChild(noButton);
@@ -153,35 +148,47 @@ poll.render = function(polls) {
             };
         }
         
+         var noCount = document.createElement("div");
+        noCount.className = "count";
+        moinsLink.appendChild(noCount);
+        noCount.innerHTML = hasVoted ? poll.noCount : "";
+        
+        
         self.renderVoters(poll, pollDom);
-        
-        if (poll.timestamp) {
-            var timestamp = document.createElement("div");
-            pollDom.appendChild(timestamp);
-            var time = new Date(poll.timestamp);
-            var day = time.getDate();
-            var month = time.getMonth() + 1;
-            var year = time.getFullYear();
-            var seconds = time.getSeconds();
-            var minutes = time.getMinutes();
-            var hour = time.getHours();
-            timestamp.innerHTML = month + "/" + day + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
-        }
-        
+        self.renderTimestamp(poll, pollDom);
         pollListDom.appendChild(pollDom);
     });
+};
+
+poll.renderTimestamp = function(poll, pollDom) {
+    if (poll.timestamp) {
+        var timestampDom = document.createElement("div");
+        timestampDom.className = "timestamp";
+        pollDom.appendChild(timestampDom);
+        var time = new Date(poll.timestamp);
+        var day = time.getDate();
+        var month = time.getMonth() + 1;
+        var year = time.getFullYear();
+        var seconds = time.getSeconds();
+        var minutes = time.getMinutes();
+        var hour = time.getHours();
+        timestampDom.innerHTML = month + "/" + day + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
+    }
 };
 
 poll.renderVoters = function(poll, pollDom) {
     var votersDom = document.createElement("div");
     votersDom.className = "voters";
     pollDom.appendChild(votersDom);
-    this.renderVoter(poll.yesers, poll, votersDom);
-    this.renderVoter(poll.noers, poll, votersDom);
+    this.renderVoter(poll.yesers, poll, votersDom, "votersyes");
+    this.renderVoter(poll.noers, poll, votersDom, "votersno");
 };
 
-poll.renderVoter = function(voters, poll, votersDom) {
+poll.renderVoter = function(voters, poll, votersDom, className) {
     var key, voter;
+    var votersGroup = document.createElement("div");
+    votersGroup.className = className;
+    votersDom.appendChild(votersGroup);
     // voters is an object / parsed array
     for(key in voters) {
         voter = voters[key];
@@ -190,7 +197,7 @@ poll.renderVoter = function(voters, poll, votersDom) {
         voterDom.className = "voterImage"
         voterDom.src = account.getAvatar(voter.avatar, 20);
         
-        votersDom.appendChild(voterDom);
+        votersGroup.appendChild(voterDom);
     }
 };
 

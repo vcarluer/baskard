@@ -45,7 +45,7 @@ vote.post = function(response, body) {
                 if (result.rowCount === 0) {
                     query = "insert into vote (pollId, userId, yes, no, timestamp) values (" + body.pollId + "," + body.userId + "," + body.yes + "," + body.no + "," + timestamp + ");";
                 } else {
-                    query = "update vote set yes = " + body.yes + ", no = " + body.no + " where pollId = " + body.pollId + " and userId = " + body.userId + " and timestamp = " + timestamp + ";";
+                    query = "update vote set yes = " + body.yes + ", no = " + body.no + ", timestamp = " + timestamp + " where pollId = " + body.pollId + " and userId = " + body.userId + ";";
                 }
                 
                 if (query) {
@@ -137,7 +137,6 @@ function updatePollCounters(response, body, client, done) {
                     pollDoc.noers = userIdToHashMap(no);
                     pollDoc.yesCount = yes.length;
                     pollDoc.noCount = no.length;
-                    pollDoc.timestamp = Date.now();
                 }
                 
                 var json = JSON.stringify(pollDoc);

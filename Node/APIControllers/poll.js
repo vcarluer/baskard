@@ -78,7 +78,7 @@ poll.post = function(response, body) {
                         
                         var avatar = result.rows[0].avatar;
                         var login = result.rows[0].login;
-                        var newPoll = poll.createNewPollDoc(newId, body.question, body.userId, login, avatar);
+                        var newPoll = poll.createNewPollDoc(newId, body.question, body.userId, login, avatar, timestamp);
                         response.write(newPoll);
                         poll.insertNewPollDoc(newId, newPoll, client, done, function() {
                             response.end();   
@@ -175,14 +175,14 @@ poll.delete = function(response, body) {
     }
 };
 
-poll.createNewPollDoc = function(id, question, ownerId, login, avatar) {
+poll.createNewPollDoc = function(id, question, ownerId, login, avatar, timestamp) {
     var pollDoc = {
         id: id,
         question: question,
         ownerId: ownerId,
         login: login,
         avatar: avatar,
-        timestamp: Date.now()
+        timestamp: timestamp
     }
     
     return JSON.stringify(pollDoc);

@@ -168,14 +168,27 @@ textarea:hover {
 .poll  .voters {
     width: 100%;
     overflow: auto;
+    min-height: 35px;
 }
 
 .poll .count {
     display: inline-block;
 }
 
+.poll .timestamp {
+    font-size: 16px;
+}
+
 #floatingDiv {
     display: none;
     position: absolute;
     background-color: white;;
+}
+
+.votersyes {
+    float:right;
+}
+
+.votersno {
+    float:left;
 }
