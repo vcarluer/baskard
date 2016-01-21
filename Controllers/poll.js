@@ -186,23 +186,9 @@ poll.renderVoter = function(voters, poll, votersDom) {
     for(key in voters) {
         voter = voters[key];
         var voterDom = document.createElement("img");
+        voterDom.setAttribute("title", voter.login);
         voterDom.className = "voterImage"
         voterDom.src = account.getAvatar(voter.avatar, 20);
-        var floating = document.getElementById("floatingDiv");
-        
-        voterDom.onmouseenter = function(e) {
-            floating.style.display = "block";
-            floating.style.left = e.pageX + "px";
-            floating.style.top = e.pageY + "px";
-            floating.innerHTML = "@" + voter.login;
-        };
-        voterDom.onmouseleave = function(e) {
-            floating.style.display = "none";
-        };
-        voterDom.onmousemove = function(e) {
-            floating.style.left = e.pageX + "px";
-            floating.style.top = e.pageY + "px";
-        };
         
         votersDom.appendChild(voterDom);
     }

@@ -119,7 +119,7 @@ function updatePollCounters(response, body, client, done) {
         
         var yes = result.rows;
         query = "select vote.userId as userId, account.avatar as avatar, account.login as login from vote " +
-                "LEFT OUTER JOIN account on vote.userId = account.id where vote.no = true and vote.pollId = " + body.pollId + ";";
+                "LEFT OUTER JOIN account on vote.userId = account.id where vote.no = true and vote.pollId = " + body.pollId + " LIMIT 10;";
         console.log("running query: " + query);
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
