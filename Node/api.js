@@ -2,6 +2,7 @@ var controllers = {};
 controllers.accountpwl = require("./APIControllers/accountpwl.js");
 controllers.poll = require("./APIControllers/poll.js");
 controllers.vote = require("./APIControllers/vote.js");
+controllers.tag = require("./APIControllers/tag.js");
 
 var url = require("url");
 

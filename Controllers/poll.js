@@ -33,6 +33,8 @@ poll.refresh = function(pollId) {
            setMessage(resp);
        }
    });
+   
+   poll.getTags();
 };
 
 poll.render = function(polls) {
@@ -281,6 +283,34 @@ poll.delVote = function(data) {
        error: function(resp) {
            console.log(resp);
            setMessage(resp);
+       }
+   });
+};
+
+poll.getTags = function() {
+    var self = this;
+    reqwest({
+       url: "/api/tag",
+       method: "GET",
+       headers: {
+           'x-authentication': account.getAPIKey()
+       },
+       success: function (resp) {
+           console.log("Hashtags retrieved: " + resp);
+           if (resp) {
+               var html = "";
+               var count = 0;
+               resp.forEach(function(tag) {
+                  html += tag + "<br />"
+                  count++;
+                  if (count === resp.length) {
+                      document.getElementById("tags").innerHTML = html;
+                  }
+               });
+           }
+       },
+       error: function(resp) {
+           console.log(resp);
        }
    });
 };

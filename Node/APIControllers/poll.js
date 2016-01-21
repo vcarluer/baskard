@@ -76,25 +76,27 @@ poll.post = function(response, body) {
                     }
                     
                     var newId = result.rows[0].id;
-                    
-                    var query = "select login, avatar from account where id = " + body.userId + ";";
-                    console.log("running query: " + query);
-                    client.query(query, function(err, result) {
-                        //call `done()` to release the client back to the pool 
-                        done();
-                        
-                        if(err) {
-                          return console.error('error running query', err);
-                        }
-                        
-                        response.writeHead("200", { "content-type": "application/json"});
-                        
-                        var avatar = result.rows[0].avatar;
-                        var login = result.rows[0].login;
-                        var newPoll = poll.createNewPollDoc(newId, body.question, body.userId, login, avatar, timestamp);
-                        response.write(newPoll);
-                        poll.insertNewPollDoc(newId, newPoll, client, done, function() {
-                            response.end();   
+       
+                    poll.indexHashtags(newId, body.question, response, client, done, function() {
+                        var query = "select login, avatar from account where id = " + body.userId + ";";
+                        console.log("running query: " + query);
+                        client.query(query, function(err, result) {
+                            //call `done()` to release the client back to the pool 
+                            done();
+                            
+                            if(err) {
+                              return console.error('error running query', err);
+                            }
+                            
+                            response.writeHead("200", { "content-type": "application/json"});
+                            
+                            var avatar = result.rows[0].avatar;
+                            var login = result.rows[0].login;
+                            var newPoll = poll.createNewPollDoc(newId, body.question, body.userId, login, avatar, timestamp);
+                            response.write(newPoll);
+                            poll.insertNewPollDoc(newId, newPoll, client, done, function() {
+                                response.end();   
+                            });
                         });
                     });
                 });
@@ -111,6 +113,78 @@ poll.post = function(response, body) {
         response.write(json);
         response.end();
     }
+};
+
+poll.indexHashtags = function(pollId, question, response, client, done, callback) {
+    var tags = question.match(/\B#\w\w+/g);
+    
+    if (tags) {
+        var indexed = 0;
+        tags.forEach(function(tag) {
+            poll.indexHashtag(pollId, tag, response, client, done);
+            indexed++;
+            if (indexed === tags.length) {
+                callback();
+            }
+        });
+    } else {
+        callback();
+    }
+};
+
+poll.indexHashtag = function(pollId, tag, response, client, done) {
+    poll.insertHashtag(tag, response, client, done, function(polls) {
+        polls.push(pollId);
+        var pollsJson = JSON.stringify(polls);
+        var query = "UPDATE tag set polls = '" + pollsJson + "' where tag = '" + tag.replace(/'/g, "''") + "';";
+        console.log("running query: " + query);
+        client.query(query, function(err, result) {
+            //call `done()` to release the client back to the pool 
+            done();
+            
+            if(err) {
+                response.writeHead("500", { "content-type": "application/json"});
+                response.end();
+                return console.error('error running query', err);
+            }
+        });
+    });
+};
+
+poll.insertHashtag = function(tag, response, client, done, callback) {
+    var query = "select polls from tag where tag = '" + tag.replace(/'/g, "''") + "';";
+    console.log("running query: " + query);
+    client.query(query, function(err, result) {
+        //call `done()` to release the client back to the pool 
+        done();
+        
+        if(err) {
+            response.writeHead("500", { "content-type": "application/json"});
+            response.end();
+            return console.error('error running query', err);
+        }
+        
+        if (result.rowCount === 0) {
+            var query = "insert into tag(tag, polls) values('" + tag.replace(/'/g, "''") + "', '');";
+            console.log("running query: " + query);
+            client.query(query, function(err, result) {
+                //call `done()` to release the client back to the pool 
+                done();
+                
+                if(err) {
+                    response.writeHead("500", { "content-type": "application/json"});
+                    response.end();
+                    return console.error('error running query', err);
+                }
+                
+                callback([]);
+            });
+        } else {
+            var pollsJson = result.rows[0].polls;
+            var polls = JSON.parse(pollsJson);
+            callback(polls);
+        }
+    });
 };
 
 poll.delete = function(response, body) {
