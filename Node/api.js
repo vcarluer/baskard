@@ -58,7 +58,7 @@ api.route = function(request, response) {
                             controller[method](response, bodyObject, request, resourceId);
                         });
                     } else {
-                        if (controllerName === "poll" && method === "get") {
+                        if ((controllerName === "poll" || controllerName === "tag") && method === "get") {
                             // Authorized fallback in anonymous to list poll
                             bodyObject.userId = -1;
                             controller[method](response, bodyObject, request, resourceId);
