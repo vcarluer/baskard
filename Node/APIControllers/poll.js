@@ -116,7 +116,7 @@ poll.post = function(response, body) {
 };
 
 poll.indexHashtags = function(pollId, question, response, client, done, callback) {
-    var tags = question.match(/\B#([\wàâêëéèîïôûùüç])([\wàâêëéèîïôûùüç]+)/gi);
+    var tags = question.match(/\B#([\wàâêëéèîïôûùüç]+)/gi);
     
     if (tags) {
         var indexed = 0;
