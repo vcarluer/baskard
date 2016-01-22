@@ -8,7 +8,7 @@ tag.get = function(response, body, request, id) {
             return console.error('error fetching client from pool', err);
         }
     
-        var query = "SELECT tag from tag LIMIT 10 ";
+        var query = "SELECT tag from tag order by timestamp desc LIMIT 10 ";
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
             done();

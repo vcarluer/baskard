@@ -136,7 +136,8 @@ poll.indexHashtag = function(pollId, tag, response, client, done) {
     poll.insertHashtag(tag, response, client, done, function(polls) {
         polls.push(pollId);
         var pollsJson = JSON.stringify(polls);
-        var query = "UPDATE tag set polls = '" + pollsJson + "' where tag = '" + tag.replace(/'/g, "''") + "';";
+        var timestamp = Date.now();
+        var query = "UPDATE tag set polls = '" + pollsJson + "', timestamp = " + timestamp + " where tag = '" + tag.replace(/'/g, "''") + "';";
         console.log("running query: " + query);
         client.query(query, function(err, result) {
             //call `done()` to release the client back to the pool 
