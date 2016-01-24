@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>BASKARD</title>
-    <script type="text/javascript" src="/libs/reqwest.min.js"></script>
+    <script type="text/javascript" src="/libs/reqwest.js"></script>
     <script type="text/javascript" src="/libs/polact.js"></script>
     <script type="text/javascript" src="/Controllers/poll.js"></script>
     <script type="text/javascript" src="/Controllers/account.js"></script>
@@ -25,6 +25,15 @@
         <div class="ask">
             <textarea id="ask" rows="3"></textarea><button id="askSubmit">Ask</button>
         </div>
+        <div>
+            <input id="file" type="file">
+             <input id="uploadFile2" type="button" value="Upload File">
+        </div>
+
+        <form action="/test" method="post" enctype="multipart/form-data">
+            <input type="file" name="upload-file">
+            <input type="submit" value="Upload Form">
+        </form>
         <div id="messages"></div>
         <div id="tags"></div>
         <div id="polls">

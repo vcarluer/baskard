@@ -11,6 +11,53 @@ poll.bind = function() {
             self.ask(question);
         }
     };
+    
+    document.getElementById("uploadFile").onclick = function() {
+        var data = new FormData();
+        var file = document.getElementById("file").files[0];
+        data.append("file", file, "text.jpg");
+        var url = "/test";
+       
+        reqwest({
+            url: url,
+            headers: {
+                  'x-authentication': account.getAPIKey()
+            },
+            method: "POST",
+            contentType: "multipart/form-data",
+            processData: false,
+            data: data,
+            success: function (resp) {
+                  console.log("file sent!");
+            },
+            error: function(resp) {
+                console.log(resp);
+            }
+        });
+    };
+    
+    document.getElementById("uploadFile").onclick = function() {
+        var file = document.getElementById("file").files[0];
+        
+        var url = "/test";
+       
+        reqwest({
+            url: url,
+            headers: {
+                  'x-authentication': account.getAPIKey()
+            },
+            method: "POST",
+            contentType: "multipart/form-data",
+            processData: false,
+            data: file,
+            success: function (resp) {
+                  console.log("file sent!");
+            },
+            error: function(resp) {
+                console.log(resp);
+            }
+        });
+    };
 };
 
 poll.refresh = function(pollId) {
