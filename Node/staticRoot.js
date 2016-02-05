@@ -1,4 +1,6 @@
 var fs = require("fs");
+var url = require("url");
+var urlResource = require("./urlResource");
 
 var staticRoot = function () {};
 var authorizedContentTypes = {
@@ -9,13 +11,18 @@ var authorizedContentTypes = {
 };
 
 
-staticRoot.write = function (pathname, response) {
-    var basepath = pathname.slice(1);
-    var resources = basepath.split(/\//);
-    var resource;
-    if (resources[0] !== "poll") {
-        resource = basepath;
+staticRoot.route = function (request, response) {
+    var requestUrl = url.parse(request.url);
+    var resources = urlResource.parse(requestUrl.pathname);
+    
+    if (requestUrl.pathname) {
+        var basepath = requestUrl.pathname.slice(1);
+        var resource;
+        if (resources[0] !== "poll") {
+            resource = basepath;
+        }    
     }
+    
     
     if (!resource) {
         response.writeHead("200", { "content-type": "text/html"});

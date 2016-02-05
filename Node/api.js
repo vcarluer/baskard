@@ -7,7 +7,7 @@ controllers.tag = require("./APIControllers/tag.js");
 var url = require("url");
 
 var api = function() {};
-api.root = "/api"
+api.root = "api"
 api.route = function(request, response) {
     var requestUrl = url.parse(request.url);
     var resources = requestUrl.pathname.slice(api.root.length + 1).split(/\//);

@@ -12,6 +12,27 @@ poll.bind = function() {
         }
     };
     
+    document.getElementById("file").onchange = function() {
+         var file = document.getElementById("file").files[0];
+         var fr = new FileReader();
+        fr.onload = function() {
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.getElementById("fileCanvas");
+                canvas.width = img.width;      // set canvas size big enough for the image
+                canvas.height = img.height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img,0,0);         // draw the image
+                
+                // do some manipulations...
+                
+                // canvas.toDataURL("image/png");  // get the data URL
+            };
+            img.src = fr.result;
+        };   // onload fires after reading is complete
+        fr.readAsDataURL(file);    // begin reading
+    };
+    
     document.getElementById("uploadFile").onclick = function() {
         var data = new FormData();
         var file = document.getElementById("file").files[0];
