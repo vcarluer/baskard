@@ -10,6 +10,12 @@ var authorizedContentTypes = {
     ico: "image/x-icon"
 };
 
+var authorizedPath = {
+    Controllers: true,
+    css: true,
+    libs: true
+}
+
 
 staticRoot.route = function (request, response) {
     var requestUrl = url.parse(request.url);
@@ -22,7 +28,6 @@ staticRoot.route = function (request, response) {
             resource = basepath;
         }    
     }
-    
     
     if (!resource) {
         response.writeHead("200", { "content-type": "text/html"});
@@ -42,7 +47,7 @@ staticRoot.route = function (request, response) {
                 if (extPos) {
                     var ext = resource.substr(extPos + 1);
                     if (ext && authorizedContentTypes[ext]) {
-                        if (resource === "index.js" || resource.substr(resource, "Node".length) === "Node") {
+                        if (resource === "index.js" || !authorizedPath[resources[0]]) {
                             response.writeHead("403");
                             response.end();
                         } else {

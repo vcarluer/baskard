@@ -8,7 +8,9 @@ var serverTest = function() {};
 serverTest.test = function(done, path, expectedStatus, expectedBody, expectedCustom) {
     var url = "http://" + process.env.IP + ":8000" + path;
     http.get(url, function(res) {
-           expect(res.statusCode).to.equal(expectedStatus);
+       expect(res.statusCode).to.equal(expectedStatus);
+       
+       if (expectedBody) {
            var data = "";
            
            res.on("data", function(chunk) {
@@ -20,10 +22,18 @@ serverTest.test = function(done, path, expectedStatus, expectedBody, expectedCus
                    expectedCustom(res, data);
                } else {
                 expect(data).to.equal(expectedBody);
-                done();
+                if (done) {
+                    done();    
+                }
+                
                }
-           })
-        });
+           })    
+       } else {
+        if (done) {
+            done();    
+           }
+        }
+    });
 };
 
 module.exports = serverTest;
