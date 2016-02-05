@@ -19,10 +19,9 @@ serverTest.test = function(done, path, expectedStatus, expectedBody, expectedCus
                if (expectedCustom) {
                    expectedCustom(res, data);
                } else {
-                expect(data).to.equal(expectedBody);    
+                expect(data).to.equal(expectedBody);
+                done();
                }
-               
-               done();
            })
         });
 };

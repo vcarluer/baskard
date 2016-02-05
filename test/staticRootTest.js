@@ -3,6 +3,7 @@ var expect = chai.expect;
 
 var server = require("../Node/server.js");
 var serverTest = require("./serverTest.js");
+var fs = require("fs");
 
 describe("staticRoot", function() {
     before(function() {
@@ -14,8 +15,8 @@ describe("staticRoot", function() {
     });
     
     it ("streams polact.htm if no resources", function(done) {
-        serverTest.test(done, "",200,null,function(res, data) {
-            expect(data.slice(0,15)).to.equal("<!doctype html>");
+        fs.readFile("Views/polact.htm", "utf8", (err, data) => {
+            serverTest.test(done, "", 200, data);
         });
     });
 });
