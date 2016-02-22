@@ -5,18 +5,20 @@ controllers.vote = require("./APIControllers/vote.js");
 controllers.tag = require("./APIControllers/tag.js");
 
 var url = require("url");
+var urlResource = require("./urlResource");
 
 var api = function() {};
 api.root = "api"
 api.route = function(request, response) {
     var requestUrl = url.parse(request.url);
-    var resources = requestUrl.pathname.slice(api.root.length + 1).split(/\//);
+    var resources = urlResource.parse(requestUrl.pathname);
+    
     var controllerName;
     var resourceId = null;
-    if (resources.length > 0) {
-        controllerName = resources[0];
+    if (resources.length > 1) {
+        controllerName = resources[1];
         if (resources.length > 1) {
-            resourceId = resources[1];
+            resourceId = resources[2];
         }
     }
     
@@ -24,6 +26,7 @@ api.route = function(request, response) {
     if (controllerName) {
         controller = controllers[controllerName]
     }
+    
     if (controller) {
         var method = request.method.toLocaleLowerCase();
          if (controller[method]) {
@@ -71,7 +74,13 @@ api.route = function(request, response) {
                     }
                 }
             });
+        } else {
+            response.writeHead("404");
+            response.end();
         }
+    } else {
+        response.writeHead("404");
+        response.end();
     }
 };
 

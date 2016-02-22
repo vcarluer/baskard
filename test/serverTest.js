@@ -1,7 +1,5 @@
 var chai = require("chai");
 var expect = chai.expect;
-
-var server = require("../Node/server.js");
 var http = require("http");
 
 var serverTest = function() {};
