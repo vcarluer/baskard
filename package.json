@@ -5,13 +5,14 @@
   "author": "Vincent Carluer <vcarluer@gmail.com>",
   "main": "index.js",
   "dependencies": {
-    "pg": "4.4.3",
-    "nodemailer": "2.0.0"
+    "nodemailer": "2.0.0",
+    "pg": "4.4.3"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "memorystream": "^0.3.1",
     "mocha": "^2.4.5",
+    "rimraf": "^2.5.2",
     "sinon": "^1.17.3"
   }
 }
